@@ -115,9 +115,17 @@ export default function QuestionOverlay({
       <div className="absolute top-4 left-4 right-4 pointer-events-auto">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold tracking-wider uppercase text-white/60">
-              Fast & Curious
-            </span>
+            {/* REC indicator */}
+            <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-1">
+              <motion.div
+                className="w-2 h-2 rounded-full bg-red-500"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 1.2, repeat: Infinity }}
+              />
+              <span className="text-[10px] font-bold tracking-wider uppercase text-white/90">
+                REC
+              </span>
+            </div>
             {/* Voice activity indicator */}
             {isSpeaking && (
               <div className="flex items-center gap-0.5">
@@ -136,7 +144,7 @@ export default function QuestionOverlay({
               </div>
             )}
           </div>
-          <span className="text-xs font-bold text-white/80">
+          <span className="text-xs font-bold text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1">
             {questionIndex + 1}/{questions.length}
           </span>
         </div>
@@ -155,6 +163,18 @@ export default function QuestionOverlay({
             />
           ))}
         </div>
+      </div>
+
+      {/* Camera frame corners */}
+      <div className="absolute inset-6 pointer-events-none">
+        {/* Top-left */}
+        <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-white/40 rounded-tl-lg" />
+        {/* Top-right */}
+        <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-white/40 rounded-tr-lg" />
+        {/* Bottom-left */}
+        <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-white/40 rounded-bl-lg" />
+        {/* Bottom-right */}
+        <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/40 rounded-br-lg" />
       </div>
 
       {/* Transition flash */}
@@ -196,22 +216,20 @@ export default function QuestionOverlay({
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.15 }}
           >
-            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-white/20 backdrop-blur-md">
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-black/30 backdrop-blur-md text-white/90">
               {question.category}
             </span>
           </motion.div>
 
           {/* Options */}
-          <div
-            className={`bg-gradient-to-r ${question.gradient} rounded-2xl p-5 shadow-2xl shadow-black/30`}
-          >
+          <div className="bg-black/40 backdrop-blur-md rounded-2xl p-5 shadow-2xl shadow-black/30 border border-white/10">
             <div className="flex items-center gap-3">
               {/* Option A */}
               <motion.button
                 className={`flex-1 text-center p-4 rounded-xl font-bold text-base transition-all duration-200 ${
                   selectedAnswer === "A"
                     ? "bg-white text-gray-900 shadow-lg scale-105"
-                    : "bg-white/20 hover:bg-white/30 active:scale-95"
+                    : "bg-white/15 hover:bg-white/25 active:scale-95 border border-white/20"
                 }`}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleAnswer("A")}
@@ -227,7 +245,7 @@ export default function QuestionOverlay({
                 className={`flex-1 text-center p-4 rounded-xl font-bold text-base transition-all duration-200 ${
                   selectedAnswer === "B"
                     ? "bg-white text-gray-900 shadow-lg scale-105"
-                    : "bg-white/20 hover:bg-white/30 active:scale-95"
+                    : "bg-white/15 hover:bg-white/25 active:scale-95 border border-white/20"
                 }`}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleAnswer("B")}
