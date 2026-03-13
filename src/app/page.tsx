@@ -1,20 +1,21 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ExampleVideo from "@/components/ExampleVideo";
 import QuestionOverlay from "@/components/QuestionOverlay";
 import Countdown from "@/components/Countdown";
 import RecapMontage from "@/components/RecapMontage";
 import { useCamera } from "@/hooks/useCamera";
+import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 
 type AppPhase =
-  | "landing"      // Welcome screen
-  | "example"      // Watching the example video
-  | "permission"   // Camera permission request
-  | "countdown"    // 3-2-1 countdown
-  | "recording"    // Recording with questions
-  | "recap";       // Final montage + download
+  | "landing"
+  | "example"
+  | "permission"
+  | "countdown"
+  | "recording"
+  | "recap";
 
 export default function Home() {
   const [phase, setPhase] = useState<AppPhase>("landing");
@@ -22,6 +23,7 @@ export default function Home() {
   const [answers, setAnswers] = useState<Record<number, "A" | "B">>({});
   const {
     videoRef,
+    stream,
     isStreaming,
     recordedBlob,
     startCamera,
@@ -30,6 +32,16 @@ export default function Home() {
     stopCamera,
     resetRecording,
   } = useCamera();
+  const { startMusic, stopMusic } = useBackgroundMusic();
+
+  // Start music when recording begins, stop when done
+  useEffect(() => {
+    if (phase === "recording") {
+      startMusic();
+    } else if (phase === "recap") {
+      stopMusic();
+    }
+  }, [phase, startMusic, stopMusic]);
 
   const handleExampleDone = useCallback(() => {
     setPhase("permission");
@@ -70,7 +82,7 @@ export default function Home() {
   return (
     <main className="flex items-center justify-center min-h-screen bg-black">
       <div className="relative w-full max-w-[430px] mx-auto h-screen video-container overflow-hidden bg-black">
-        {/* Camera feed (visible during countdown + recording) */}
+        {/* Camera feed */}
         {(phase === "countdown" || phase === "recording") && (
           <video
             ref={videoRef}
@@ -87,16 +99,16 @@ export default function Home() {
           {phase === "landing" && (
             <motion.div
               key="landing"
-              className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 via-purple-900/50 to-black p-8"
+              className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-navy-700 via-burgundy-800/40 to-navy-900 p-8"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
               {/* Decorative circles */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-pink-500/20 blur-3xl" />
-                <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-cyan-500/20 blur-3xl" />
-                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-purple-500/15 blur-2xl" />
+                <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-burgundy-500/20 blur-3xl" />
+                <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-navy-400/20 blur-3xl" />
+                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-burgundy-400/15 blur-2xl" />
               </div>
 
               <motion.div
@@ -128,11 +140,11 @@ export default function Home() {
                 <div className="space-y-3">
                   <motion.button
                     onClick={() => setPhase("example")}
-                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 font-bold text-lg shadow-lg shadow-purple-500/30"
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-burgundy-500 via-burgundy-400 to-navy-500 font-bold text-lg shadow-lg shadow-burgundy-500/30"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
                   >
-                    Voir l&apos;exemple d&apos;abord 👀
+                    Voir l&apos;exemple d&apos;abord
                   </motion.button>
 
                   <motion.button
@@ -154,7 +166,7 @@ export default function Home() {
               >
                 <div className="flex justify-between text-center text-xs text-white/30">
                   <div>
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-1">
+                    <div className="w-8 h-8 rounded-full bg-burgundy-500/30 flex items-center justify-center mx-auto mb-1">
                       1
                     </div>
                     Exemple
@@ -163,7 +175,7 @@ export default function Home() {
                     <div className="h-px bg-white/10 w-full" />
                   </div>
                   <div>
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-1">
+                    <div className="w-8 h-8 rounded-full bg-navy-400/30 flex items-center justify-center mx-auto mb-1">
                       2
                     </div>
                     Caméra
@@ -172,7 +184,7 @@ export default function Home() {
                     <div className="h-px bg-white/10 w-full" />
                   </div>
                   <div>
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center mx-auto mb-1">
+                    <div className="w-8 h-8 rounded-full bg-burgundy-500/30 flex items-center justify-center mx-auto mb-1">
                       3
                     </div>
                     Action !
@@ -193,7 +205,6 @@ export default function Home() {
             >
               <ExampleVideo onFinished={handleExampleDone} />
 
-              {/* Skip button */}
               <motion.button
                 className="absolute top-6 right-4 z-30 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-xs font-bold text-white/70"
                 onClick={handleExampleDone}
@@ -211,13 +222,13 @@ export default function Home() {
           {phase === "permission" && (
             <motion.div
               key="permission"
-              className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-black p-8"
+              className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-navy-700 to-navy-900 p-8"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 1.05 }}
             >
               <motion.div
-                className="w-28 h-28 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center mb-8 record-pulse"
+                className="w-28 h-28 rounded-full bg-gradient-to-br from-burgundy-500 to-navy-500 flex items-center justify-center mb-8 record-pulse"
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
@@ -243,11 +254,11 @@ export default function Home() {
 
               <motion.button
                 onClick={handleCameraStart}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 font-bold text-lg text-black shadow-lg shadow-green-500/25"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-burgundy-400 to-burgundy-500 font-bold text-lg text-white shadow-lg shadow-burgundy-500/25"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.97 }}
               >
-                Autoriser la caméra 📸
+                Autoriser la caméra
               </motion.button>
 
               <p className="text-white/30 text-xs mt-4 text-center">
@@ -261,17 +272,18 @@ export default function Home() {
             <Countdown key="countdown" onDone={handleCountdownDone} />
           )}
 
-          {/* RECORDING - Question overlays */}
+          {/* RECORDING */}
           {phase === "recording" && (
             <QuestionOverlay
               key="recording"
               questionIndex={questionIndex}
+              stream={stream}
               onAnswered={handleAnswered}
               onAllDone={handleAllDone}
             />
           )}
 
-          {/* RECAP MONTAGE */}
+          {/* RECAP */}
           {phase === "recap" && (
             <motion.div
               key="recap"

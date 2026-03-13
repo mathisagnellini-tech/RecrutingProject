@@ -10,16 +10,18 @@ export function useCamera() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   const startCamera = useCallback(async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: 1080, height: 1920 },
         audio: true,
       });
-      streamRef.current = stream;
+      streamRef.current = mediaStream;
+      setStream(mediaStream);
       if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+        videoRef.current.srcObject = mediaStream;
         await videoRef.current.play();
       }
       setIsStreaming(true);
@@ -47,7 +49,7 @@ export function useCamera() {
     };
 
     mediaRecorderRef.current = recorder;
-    recorder.start(100); // collect data every 100ms
+    recorder.start(100);
     setIsRecording(true);
   }, []);
 
@@ -61,6 +63,7 @@ export function useCamera() {
   const stopCamera = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
+    setStream(null);
     setIsStreaming(false);
   }, []);
 
@@ -71,6 +74,7 @@ export function useCamera() {
 
   return {
     videoRef,
+    stream,
     isStreaming,
     isRecording,
     recordedBlob,

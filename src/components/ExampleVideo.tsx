@@ -4,17 +4,11 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { questions } from "@/data/questions";
 
-/**
- * Simulated "example" Fast & Curious video.
- * Shows animated question cards over a gradient background
- * to demonstrate what the candidate's video will look like.
- */
 export default function ExampleVideo({ onFinished }: { onFinished: () => void }) {
-  const [currentQ, setCurrentQ] = useState(-1); // -1 = intro
+  const [currentQ, setCurrentQ] = useState(-1);
   const [showAnswer, setShowAnswer] = useState(false);
   const [timer, setTimer] = useState(0);
 
-  // Example "answers" for the demo (alternating A/B)
   const exampleAnswers = [
     "A", "A", "B", "A", "A", "B", "B", "A", "A", "B",
   ];
@@ -29,10 +23,8 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
     setTimer(0);
   }, [currentQ, onFinished]);
 
-  // Auto-advance the demo
   useEffect(() => {
     if (currentQ === -1) {
-      // Show intro for 2s then start
       const t = setTimeout(() => advanceQuestion(), 2000);
       return () => clearTimeout(t);
     }
@@ -40,13 +32,13 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
     const q = questions[currentQ];
     if (!q) return;
 
-    // Show question, then after half duration show "answer", then advance
-    const answerTimeout = setTimeout(() => setShowAnswer(true), (q.duration * 1000) / 2);
-    const nextTimeout = setTimeout(() => advanceQuestion(), q.duration * 1000);
+    // Use shorter durations for example (3s per question)
+    const exampleDuration = 3000;
+    const answerTimeout = setTimeout(() => setShowAnswer(true), exampleDuration / 2);
+    const nextTimeout = setTimeout(() => advanceQuestion(), exampleDuration);
 
-    // Timer animation
     const interval = setInterval(() => {
-      setTimer((t) => Math.min(t + 0.1, q.duration));
+      setTimer((t) => Math.min(t + 0.1, exampleDuration / 1000));
     }, 100);
 
     return () => {
@@ -57,10 +49,11 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
   }, [currentQ, advanceQuestion]);
 
   const currentQuestion = currentQ >= 0 ? questions[currentQ] : null;
-  const progress = currentQuestion ? (timer / currentQuestion.duration) * 100 : 0;
+  const exampleDuration = 3;
+  const progress = currentQuestion ? (timer / exampleDuration) * 100 : 0;
 
   return (
-    <div className="relative w-full h-full bg-gradient-to-br from-gray-900 via-purple-900 to-black overflow-hidden">
+    <div className="relative w-full h-full bg-gradient-to-br from-burgundy-700 via-navy-600 to-navy-800 overflow-hidden">
       {/* Animated background shapes */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(6)].map((_, i) => (
@@ -71,7 +64,7 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
               width: 100 + i * 40,
               height: 100 + i * 40,
               background: `linear-gradient(135deg, ${
-                ["#ff006e", "#ffbe0b", "#00f5d4", "#667eea", "#764ba2", "#f72585"][i]
+                ["#8B1A2B", "#aa2040", "#1a2744", "#364d7a", "#5f121d", "#5772ab"][i]
               }, transparent)`,
               left: `${10 + i * 15}%`,
               top: `${20 + (i % 3) * 25}%`,
@@ -99,7 +92,7 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
         </div>
       </div>
 
-      {/* Header logo */}
+      {/* Header */}
       <motion.div
         className="absolute top-6 left-0 right-0 text-center z-10"
         initial={{ opacity: 0, y: -20 }}
@@ -142,7 +135,6 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
             exit={{ y: -80, opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
           >
-            {/* Category tag */}
             <motion.span
               className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-3 bg-white/20 backdrop-blur-sm"
               initial={{ x: -20, opacity: 0 }}
@@ -152,7 +144,6 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
               {currentQuestion.category}
             </motion.span>
 
-            {/* Question card */}
             <div className={`bg-gradient-to-r ${currentQuestion.gradient} rounded-2xl p-5 backdrop-blur-lg shadow-2xl`}>
               <div className="flex items-center justify-between gap-4">
                 <motion.div
@@ -180,7 +171,6 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
                 </motion.div>
               </div>
 
-              {/* Timer bar */}
               <div className="mt-4 h-1 bg-white/20 rounded-full overflow-hidden">
                 <motion.div
                   className="h-full bg-white rounded-full"
@@ -190,7 +180,6 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
               </div>
             </div>
 
-            {/* Question counter */}
             <div className="flex justify-center mt-3 gap-1.5">
               {questions.map((_, i) => (
                 <div
@@ -199,7 +188,7 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
                     i === currentQ
                       ? "w-6 bg-white"
                       : i < currentQ
-                      ? "w-3 bg-white/60"
+                      ? "w-3 bg-burgundy-400"
                       : "w-3 bg-white/20"
                   }`}
                 />
@@ -209,7 +198,7 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
         )}
       </AnimatePresence>
 
-      {/* "EXEMPLE" watermark */}
+      {/* Watermark */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-30deg] z-10 pointer-events-none">
         <p className="text-6xl font-black text-white/5 tracking-widest">EXEMPLE</p>
       </div>
