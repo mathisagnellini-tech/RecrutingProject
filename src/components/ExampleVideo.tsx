@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { questions } from "@/data/questions";
 
-export default function ExampleVideo({ onFinished }: { onFinished: () => void }) {
+export default function ExampleVideo({ onFinished, videoRef }: { onFinished: () => void; videoRef?: React.RefObject<HTMLVideoElement> }) {
   const [currentQ, setCurrentQ] = useState(-1);
   const [showAnswer, setShowAnswer] = useState(false);
   const [timer, setTimer] = useState(0);
@@ -83,14 +83,28 @@ export default function ExampleVideo({ onFinished }: { onFinished: () => void })
         ))}
       </div>
 
-      {/* Fake webcam silhouette */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-32 h-32 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center">
-          <svg className="w-16 h-16 text-white/30" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-          </svg>
+      {/* Live camera feed */}
+      {videoRef && (
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ transform: "scaleX(-1)" }}
+        />
+      )}
+
+      {/* Fallback silhouette when no camera */}
+      {!videoRef && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-32 h-32 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center">
+            <svg className="w-16 h-16 text-white/30" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+            </svg>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Header */}
       <motion.div

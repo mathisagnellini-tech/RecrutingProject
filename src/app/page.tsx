@@ -43,8 +43,17 @@ export default function Home() {
     }
   }, [phase, startMusic, stopMusic]);
 
+  const handleStartExample = useCallback(async () => {
+    try {
+      await startCamera();
+      setPhase("example");
+    } catch {
+      alert("Impossible d'accéder à la caméra. Vérifie tes autorisations.");
+    }
+  }, [startCamera]);
+
   const handleExampleDone = useCallback(() => {
-    setPhase("permission");
+    setPhase("countdown");
   }, []);
 
   const handleCameraStart = useCallback(async () => {
@@ -82,7 +91,7 @@ export default function Home() {
   return (
     <main className="flex items-center justify-center min-h-screen bg-black">
       <div className="relative w-full max-w-[430px] mx-auto h-screen video-container overflow-hidden bg-black">
-        {/* Camera feed */}
+        {/* Camera feed (countdown & recording phases - ExampleVideo handles its own via videoRef) */}
         {(phase === "countdown" || phase === "recording") && (
           <video
             ref={videoRef}
@@ -139,7 +148,7 @@ export default function Home() {
 
                 <div className="space-y-3">
                   <motion.button
-                    onClick={() => setPhase("example")}
+                    onClick={handleStartExample}
                     className="w-full py-4 rounded-2xl bg-gradient-to-r from-burgundy-500 via-burgundy-400 to-navy-500 font-bold text-lg shadow-lg shadow-burgundy-500/30"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.97 }}
@@ -148,7 +157,7 @@ export default function Home() {
                   </motion.button>
 
                   <motion.button
-                    onClick={() => setPhase("permission")}
+                    onClick={handleCameraStart}
                     className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 font-medium text-sm text-white/60"
                     whileTap={{ scale: 0.97 }}
                   >
@@ -203,7 +212,7 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <ExampleVideo onFinished={handleExampleDone} />
+              <ExampleVideo onFinished={handleExampleDone} videoRef={videoRef} />
 
               <motion.button
                 className="absolute top-6 right-4 z-30 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-xs font-bold text-white/70"
