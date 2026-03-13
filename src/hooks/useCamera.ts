@@ -1,0 +1,83 @@
+"use client";
+
+import { useRef, useState, useCallback } from "react";
+
+export function useCamera() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const streamRef = useRef<MediaStream | null>(null);
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordedBlob, setRecordedBlob] = useState<Blob | null>(null);
+
+  const startCamera = useCallback(async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: 1080, height: 1920 },
+        audio: true,
+      });
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+      setIsStreaming(true);
+    } catch (err) {
+      console.error("Camera access denied:", err);
+      throw err;
+    }
+  }, []);
+
+  const startRecording = useCallback(() => {
+    if (!streamRef.current) return;
+
+    chunksRef.current = [];
+    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
+      ? "video/webm;codecs=vp9,opus"
+      : "video/webm";
+
+    const recorder = new MediaRecorder(streamRef.current, { mimeType });
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunksRef.current.push(e.data);
+    };
+    recorder.onstop = () => {
+      const blob = new Blob(chunksRef.current, { type: mimeType });
+      setRecordedBlob(blob);
+    };
+
+    mediaRecorderRef.current = recorder;
+    recorder.start(100); // collect data every 100ms
+    setIsRecording(true);
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    if (mediaRecorderRef.current?.state === "recording") {
+      mediaRecorderRef.current.stop();
+    }
+    setIsRecording(false);
+  }, []);
+
+  const stopCamera = useCallback(() => {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    setIsStreaming(false);
+  }, []);
+
+  const resetRecording = useCallback(() => {
+    setRecordedBlob(null);
+    chunksRef.current = [];
+  }, []);
+
+  return {
+    videoRef,
+    isStreaming,
+    isRecording,
+    recordedBlob,
+    startCamera,
+    startRecording,
+    stopRecording,
+    stopCamera,
+    resetRecording,
+  };
+}
