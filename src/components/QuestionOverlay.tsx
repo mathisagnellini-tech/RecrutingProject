@@ -76,9 +76,9 @@ export default function QuestionOverlay({
     }, 1200);
   }, [question, isLastQuestion, onAnswered, onAllDone]);
 
-  // Countdown phase: strict 12s timer
+  // Countdown phase: strict 12s timer (skip for last question - unlimited)
   useEffect(() => {
-    if (phase !== "countdown" || !question) return;
+    if (phase !== "countdown" || !question || isLastQuestion) return;
 
     const interval = setInterval(() => {
       setTimer((t) => {
@@ -92,7 +92,7 @@ export default function QuestionOverlay({
     }, 100);
 
     return () => clearInterval(interval);
-  }, [phase, question, advanceToNext]);
+  }, [phase, question, isLastQuestion, advanceToNext]);
 
   if (!question) return null;
 
@@ -146,7 +146,7 @@ export default function QuestionOverlay({
                     : "text-white/80"
                 }`}
               >
-                {isDisplayPhase ? "Lis..." : `${remainingSeconds}s`}
+                {isDisplayPhase ? "Lis..." : isLastQuestion ? "∞" : `${remainingSeconds}s`}
               </span>
               <span className="text-xs font-bold text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1">
                 {questionIndex + 1}/{questions.length}
@@ -338,31 +338,43 @@ export default function QuestionOverlay({
                   )}
                 </div>
 
-                {/* Timer bar */}
-                <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                  <motion.div
-                    className={`h-full rounded-full transition-colors duration-500 ${
-                      remainingSeconds <= 3
-                        ? "bg-red-400"
-                        : isSpeaking
-                        ? "bg-burgundy-400"
-                        : "bg-white/60"
-                    }`}
-                    style={{ width: `${100 - progress}%` }}
-                  />
-                </div>
+                {/* Timer bar (hidden for last question) */}
+                {!isLastQuestion && (
+                  <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full rounded-full transition-colors duration-500 ${
+                        remainingSeconds <= 3
+                          ? "bg-red-400"
+                          : isSpeaking
+                          ? "bg-burgundy-400"
+                          : "bg-white/60"
+                      }`}
+                      style={{ width: `${100 - progress}%` }}
+                    />
+                  </div>
+                )}
+
+                {isLastQuestion && (
+                  <p className="mt-3 text-[10px] text-white/40 font-medium text-center">
+                    Prends ton temps, pas de limite
+                  </p>
+                )}
               </div>
 
-              {/* Skip button */}
+              {/* Button */}
               <motion.button
-                className="mt-2 w-full py-2 rounded-xl bg-white/10 backdrop-blur-sm text-sm font-semibold text-white/60 active:bg-white/20 transition-colors"
+                className={`mt-2 w-full py-2 rounded-xl backdrop-blur-sm text-sm font-semibold active:bg-white/20 transition-colors ${
+                  isLastQuestion
+                    ? "bg-gradient-to-r from-burgundy-500 to-navy-500 text-white"
+                    : "bg-white/10 text-white/60"
+                }`}
                 whileTap={{ scale: 0.97 }}
                 onClick={advanceToNext}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                Passer →
+                {isLastQuestion ? "Terminer 🎬" : "Passer →"}
               </motion.button>
             </motion.div>
           </AnimatePresence>

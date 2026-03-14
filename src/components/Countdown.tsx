@@ -48,8 +48,8 @@ export default function Countdown({ onDone }: CountdownProps) {
           <p className="text-2xl font-bold text-burgundy-400 mt-2">
             12s par question
           </p>
-          <p className="text-2xl font-bold text-white/60 mt-1">
-            1min20
+          <p className="text-sm font-medium text-white/40 mt-1">
+            La dernière est libre, prends ton temps
           </p>
           <p className="text-xl font-black gradient-text mt-4">
             À toi de jouer !

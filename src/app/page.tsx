@@ -7,7 +7,6 @@ import QuestionOverlay from "@/components/QuestionOverlay";
 import Countdown from "@/components/Countdown";
 import RecapMontage from "@/components/RecapMontage";
 import { useCamera } from "@/hooks/useCamera";
-import { useBackgroundMusic } from "@/hooks/useBackgroundMusic";
 
 type AppPhase =
   | "landing"
@@ -32,8 +31,6 @@ export default function Home() {
     stopCamera,
     resetRecording,
   } = useCamera();
-  const { startMusic, stopMusic } = useBackgroundMusic();
-
   // Attach the camera stream to the video element whenever it mounts
   useEffect(() => {
     if (
@@ -45,22 +42,14 @@ export default function Home() {
     }
   }, [phase, stream, videoRef]);
 
-  // Stop music on recap or landing
-  useEffect(() => {
-    if (phase === "recap" || phase === "landing") {
-      stopMusic();
-    }
-  }, [phase, stopMusic]);
-
   const handleStartExample = useCallback(async () => {
     try {
       await startCamera();
-      startMusic(); // Start music on user click (required for AudioContext)
       setPhase("example");
     } catch {
       alert("Impossible d'accéder à la caméra. Vérifie tes autorisations.");
     }
-  }, [startCamera, startMusic]);
+  }, [startCamera]);
 
   const handleExampleDone = useCallback(() => {
     setPhase("countdown");
@@ -69,12 +58,11 @@ export default function Home() {
   const handleGoDirectly = useCallback(async () => {
     try {
       await startCamera();
-      startMusic(); // Start music on user click (required for AudioContext)
       setPhase("countdown");
     } catch {
       alert("Impossible d'accéder à la caméra. Vérifie tes autorisations.");
     }
-  }, [startCamera, startMusic]);
+  }, [startCamera]);
 
   const handleCountdownDone = useCallback(() => {
     startRecording();
