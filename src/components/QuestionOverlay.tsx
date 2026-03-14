@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { questions, type Question } from "@/data/questions";
 import { useVoiceActivity } from "@/hooks/useVoiceActivity";
@@ -12,7 +12,8 @@ interface QuestionOverlayProps {
   onAllDone: () => void;
 }
 
-const QUESTION_DURATION = 12; // strict 12 seconds per question
+const QUESTION_DURATION = 12;
+const QUESTION_DISPLAY_DELAY = 4; // show question 4s before countdown
 
 export default function QuestionOverlay({
   questionIndex,
@@ -21,16 +22,43 @@ export default function QuestionOverlay({
   onAllDone,
 }: QuestionOverlayProps) {
   const [timer, setTimer] = useState(0);
-  const [showTransition, setShowTransition] = useState(false);
-  const [isAdvancing, setIsAdvancing] = useState(false);
+  const [displayTimer, setDisplayTimer] = useState(0);
+  const [phase, setPhase] = useState<"display" | "countdown" | "transition">("display");
+  const phaseRef = useRef(phase);
+  phaseRef.current = phase;
 
   const question: Question | undefined = questions[questionIndex];
   const isLastQuestion = questionIndex >= questions.length - 1;
   const { isSpeaking } = useVoiceActivity(stream, questionIndex);
 
+  // Reset to display phase when question changes
+  useEffect(() => {
+    setPhase("display");
+    setDisplayTimer(0);
+    setTimer(0);
+  }, [questionIndex]);
+
+  // Display phase: 4s reading time
+  useEffect(() => {
+    if (phase !== "display" || !question) return;
+
+    const interval = setInterval(() => {
+      setDisplayTimer((t) => {
+        const next = t + 0.1;
+        if (next >= QUESTION_DISPLAY_DELAY) {
+          setPhase("countdown");
+          return QUESTION_DISPLAY_DELAY;
+        }
+        return next;
+      });
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [phase, question]);
+
   const advanceToNext = useCallback(() => {
-    if (isAdvancing) return;
-    setIsAdvancing(true);
+    if (phaseRef.current === "transition") return;
+    setPhase("transition");
 
     if (navigator.vibrate) {
       navigator.vibrate(50);
@@ -38,20 +66,19 @@ export default function QuestionOverlay({
 
     onAnswered(question.id);
 
-    setShowTransition(true);
     setTimeout(() => {
-      setShowTransition(false);
       setTimer(0);
-      setIsAdvancing(false);
+      setDisplayTimer(0);
+      setPhase("display");
       if (isLastQuestion) {
         onAllDone();
       }
     }, 1200);
-  }, [isAdvancing, question, isLastQuestion, onAnswered, onAllDone]);
+  }, [question, isLastQuestion, onAnswered, onAllDone]);
 
-  // Strict 12s timer - always counts, never pauses
+  // Countdown phase: strict 12s timer
   useEffect(() => {
-    if (!question || isAdvancing) return;
+    if (phase !== "countdown" || !question) return;
 
     const interval = setInterval(() => {
       setTimer((t) => {
@@ -65,12 +92,14 @@ export default function QuestionOverlay({
     }, 100);
 
     return () => clearInterval(interval);
-  }, [question, isAdvancing, advanceToNext]);
+  }, [phase, question, advanceToNext]);
 
   if (!question) return null;
 
   const remainingSeconds = Math.ceil(QUESTION_DURATION - timer);
-  const progress = (timer / QUESTION_DURATION) * 100;
+  const progress = phase === "countdown" ? (timer / QUESTION_DURATION) * 100 : 0;
+  const isDisplayPhase = phase === "display";
+  const isTransition = phase === "transition";
 
   return (
     <div className="absolute inset-0 z-30 pointer-events-none">
@@ -89,7 +118,6 @@ export default function QuestionOverlay({
                 REC
               </span>
             </div>
-            {/* Voice activity indicator */}
             {isSpeaking && (
               <div className="flex items-center gap-0.5">
                 {[1, 2, 3].map((i) => (
@@ -108,13 +136,17 @@ export default function QuestionOverlay({
             )}
           </div>
           <div className="flex items-center gap-2">
-            {/* Remaining seconds */}
+            {/* Timer badge */}
             <span
               className={`text-xs font-black tabular-nums bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1 ${
-                remainingSeconds <= 3 ? "text-red-400" : "text-white/80"
+                isDisplayPhase
+                  ? "text-white/60"
+                  : remainingSeconds <= 3
+                  ? "text-red-400"
+                  : "text-white/80"
               }`}
             >
-              {remainingSeconds}s
+              {isDisplayPhase ? "Lis..." : `${remainingSeconds}s`}
             </span>
             <span className="text-xs font-bold text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1">
               {questionIndex + 1}/{questions.length}
@@ -146,9 +178,9 @@ export default function QuestionOverlay({
         <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/40 rounded-br-lg" />
       </div>
 
-      {/* Transition overlay - shows current question as "done" */}
+      {/* Transition overlay */}
       <AnimatePresence>
-        {showTransition && (
+        {isTransition && (
           <motion.div
             className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md z-40 pointer-events-none px-8"
             initial={{ opacity: 0 }}
@@ -160,7 +192,6 @@ export default function QuestionOverlay({
                 className="text-center"
                 initial={{ scale: 0, rotate: -10 }}
                 animate={{ scale: 1, rotate: 0 }}
-                exit={{ scale: 0.8, opacity: 0 }}
                 transition={{ type: "spring", damping: 12 }}
               >
                 <motion.div
@@ -173,21 +204,12 @@ export default function QuestionOverlay({
                 <p className="text-3xl font-black gradient-text">
                   Voici le récap !
                 </p>
-                <motion.p
-                  className="text-white/50 text-sm mt-2"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  Bien joué, c&apos;est terminé !
-                </motion.p>
               </motion.div>
             ) : (
               <motion.div
                 className="text-center"
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
                 transition={{ type: "spring", damping: 15 }}
               >
                 <motion.span
@@ -200,14 +222,6 @@ export default function QuestionOverlay({
                 <p className="text-lg font-bold text-white/60 mt-2">
                   ✓ {question.text}
                 </p>
-                <motion.p
-                  className="text-white/30 text-xs mt-3 uppercase tracking-widest font-bold"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  Question suivante...
-                </motion.p>
               </motion.div>
             )}
           </motion.div>
@@ -215,9 +229,8 @@ export default function QuestionOverlay({
       </AnimatePresence>
 
       {/* Bottom section: current question + skip */}
-      {!showTransition && (
+      {!isTransition && (
         <div className="absolute inset-x-4 bottom-6 pointer-events-auto">
-          {/* Current question card */}
           <AnimatePresence mode="wait">
             <motion.div
               key={question.id}
@@ -238,7 +251,7 @@ export default function QuestionOverlay({
                 </span>
               </motion.div>
 
-              {/* Question */}
+              {/* Question card */}
               <div className="bg-black/50 backdrop-blur-md rounded-2xl p-5 shadow-2xl shadow-black/30 border border-white/10">
                 <div className="flex items-start gap-3">
                   <motion.span
@@ -253,9 +266,17 @@ export default function QuestionOverlay({
                   </p>
                 </div>
 
-                {/* Voice status */}
+                {/* Status */}
                 <div className="mt-4 flex items-center gap-2">
-                  {isSpeaking ? (
+                  {isDisplayPhase ? (
+                    <motion.span
+                      className="text-[10px] text-white/50 font-semibold uppercase tracking-wider"
+                      animate={{ opacity: [0.5, 1, 0.5] }}
+                      transition={{ duration: 1.5, repeat: Infinity }}
+                    >
+                      Prépare ta réponse...
+                    </motion.span>
+                  ) : isSpeaking ? (
                     <>
                       <div className="flex items-center gap-0.5">
                         {[1, 2, 3, 4, 5].map((i) => (
@@ -284,30 +305,39 @@ export default function QuestionOverlay({
 
                 {/* Timer bar */}
                 <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                  <motion.div
-                    className={`h-full rounded-full transition-colors duration-500 ${
-                      remainingSeconds <= 3
-                        ? "bg-red-400"
-                        : isSpeaking
-                        ? "bg-burgundy-400"
-                        : "bg-white/60"
-                    }`}
-                    style={{ width: `${100 - progress}%` }}
-                  />
+                  {isDisplayPhase ? (
+                    <motion.div
+                      className="h-full rounded-full bg-white/40"
+                      style={{ width: `${(displayTimer / QUESTION_DISPLAY_DELAY) * 100}%` }}
+                    />
+                  ) : (
+                    <motion.div
+                      className={`h-full rounded-full transition-colors duration-500 ${
+                        remainingSeconds <= 3
+                          ? "bg-red-400"
+                          : isSpeaking
+                          ? "bg-burgundy-400"
+                          : "bg-white/60"
+                      }`}
+                      style={{ width: `${100 - progress}%` }}
+                    />
+                  )}
                 </div>
               </div>
 
               {/* Skip button */}
-              <motion.button
-                className="mt-3 w-full py-2.5 rounded-xl bg-white/10 backdrop-blur-sm text-sm font-semibold text-white/60 active:bg-white/20 transition-colors"
-                whileTap={{ scale: 0.97 }}
-                onClick={advanceToNext}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-              >
-                Passer →
-              </motion.button>
+              {!isDisplayPhase && (
+                <motion.button
+                  className="mt-3 w-full py-2.5 rounded-xl bg-white/10 backdrop-blur-sm text-sm font-semibold text-white/60 active:bg-white/20 transition-colors"
+                  whileTap={{ scale: 0.97 }}
+                  onClick={advanceToNext}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  Passer →
+                </motion.button>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

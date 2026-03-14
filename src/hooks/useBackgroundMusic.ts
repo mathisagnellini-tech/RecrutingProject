@@ -19,7 +19,7 @@ export function useBackgroundMusic() {
     // Master gain with fade-in
     const masterGain = ctx.createGain();
     masterGain.gain.setValueAtTime(0, ctx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.035, ctx.currentTime + 2);
+    masterGain.gain.linearRampToValueAtTime(0.1, ctx.currentTime + 2);
     masterGain.connect(ctx.destination);
     gainRef.current = masterGain;
 

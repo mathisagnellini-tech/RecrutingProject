@@ -20,8 +20,6 @@ export default function RecapMontage({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [showShareMenu, setShowShareMenu] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -49,21 +47,8 @@ export default function RecapMontage({
       setCurrentQuestionIdx(idx);
     };
 
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => setIsPlaying(false);
-
     video.addEventListener("timeupdate", onTimeUpdate);
-    video.addEventListener("play", onPlay);
-    video.addEventListener("pause", onPause);
-    video.addEventListener("ended", onEnded);
-
-    return () => {
-      video.removeEventListener("timeupdate", onTimeUpdate);
-      video.removeEventListener("play", onPlay);
-      video.removeEventListener("pause", onPause);
-      video.removeEventListener("ended", onEnded);
-    };
+    return () => video.removeEventListener("timeupdate", onTimeUpdate);
   }, [questionTimestamps]);
 
   const handleDownload = useCallback(() => {
@@ -80,7 +65,7 @@ export default function RecapMontage({
     setTimeout(() => setDownloading(false), 1000);
   }, [videoBlob]);
 
-  const handleNativeShare = useCallback(async () => {
+  const handleShare = useCallback(async () => {
     if (!videoBlob) return;
     const file = new File([videoBlob], "fast-and-curious.webm", { type: videoBlob.type });
 
@@ -92,76 +77,33 @@ export default function RecapMontage({
           files: [file],
         });
       } catch {
-        // User cancelled
+        // User cancelled - fallback to download
       }
     } else {
-      setShowShareMenu(true);
+      handleDownload();
     }
-  }, [videoBlob]);
+  }, [videoBlob, handleDownload]);
 
-  const handleShareWhatsApp = useCallback(() => {
-    const text = encodeURIComponent(
-      "Regarde ma vidéo de recrutement Fast & Curious ! 🎬🔥"
-    );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
-  }, []);
-
-  const handleShareLinkedIn = useCallback(() => {
-    const text = encodeURIComponent(
-      "Je viens de passer mon entretien Fast & Curious ! 🎬 10 questions flash, face caméra. Une nouvelle façon de se présenter aux recruteurs !"
-    );
-    window.open(
-      `https://www.linkedin.com/sharing/share-offsite/?text=${text}`,
-      "_blank"
-    );
-  }, []);
-
-  const handleShareX = useCallback(() => {
-    const text = encodeURIComponent(
-      "Je viens de faire mon Fast & Curious recrutement ! 🎬🔥 10 questions flash face caméra"
-    );
-    window.open(`https://x.com/intent/tweet?text=${text}`, "_blank");
-  }, []);
-
-  const handleCopyLink = useCallback(() => {
-    navigator.clipboard.writeText(
-      "Regarde ma vidéo de recrutement Fast & Curious ! 🎬🔥"
-    );
-    setShowShareMenu(false);
-  }, []);
-
-  const jumpToQuestion = useCallback((idx: number) => {
-    const video = videoRef.current;
-    if (!video || !questionTimestamps[idx]) return;
-    video.currentTime = questionTimestamps[idx];
-    video.play();
-  }, [questionTimestamps]);
+  const jumpToQuestion = useCallback(
+    (idx: number) => {
+      const video = videoRef.current;
+      if (!video || questionTimestamps[idx] === undefined) return;
+      video.currentTime = questionTimestamps[idx];
+      video.play();
+    },
+    [questionTimestamps]
+  );
 
   const currentQuestion = questions[currentQuestionIdx];
   const answeredQuestions = questions.filter((q) => answeredIds.includes(q.id));
 
   return (
     <div className="relative w-full h-full bg-black flex flex-col">
-      {/* Header */}
-      <motion.div
-        className="shrink-0 bg-black/80 backdrop-blur-lg px-4 py-3 border-b border-white/10 z-10"
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-      >
-        <h1 className="text-lg font-bold gradient-text text-center">
-          Bravo, c&apos;est dans la boîte ! 🎬
-        </h1>
-        <p className="text-xs text-white/40 text-center mt-0.5">
-          {answeredIds.length}/{questions.length} questions
-        </p>
-      </motion.div>
-
-      {/* Video + synced question - takes most of the space */}
-      <div className="flex-1 flex flex-col min-h-0">
-        {/* Video */}
+      {/* Video container with overlaid question */}
+      <div className="flex-1 relative min-h-0">
         {videoUrl && (
           <motion.div
-            className="relative flex-1 min-h-0"
+            className="absolute inset-0"
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2 }}
@@ -177,8 +119,22 @@ export default function RecapMontage({
           </motion.div>
         )}
 
-        {/* Current question - synced with video */}
-        <div className="shrink-0 px-4 py-3">
+        {/* Header overlay on video */}
+        <motion.div
+          className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-black/70 to-transparent px-4 pt-3 pb-8"
+          initial={{ y: -30, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+        >
+          <h1 className="text-base font-bold gradient-text text-center">
+            Bravo, c&apos;est dans la boîte ! 🎬
+          </h1>
+          <p className="text-[10px] text-white/40 text-center mt-0.5">
+            {answeredIds.length}/{questions.length} questions
+          </p>
+        </motion.div>
+
+        {/* Question overlay on video - bottom */}
+        <div className="absolute bottom-14 left-3 right-3 z-10">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentQuestion?.id ?? 0}
@@ -189,19 +145,19 @@ export default function RecapMontage({
             >
               {currentQuestion && (
                 <div
-                  className={`rounded-2xl p-4 bg-gradient-to-r ${currentQuestion.gradient} shadow-lg border border-white/10`}
+                  className={`rounded-xl p-3 bg-gradient-to-r ${currentQuestion.gradient} shadow-lg border border-white/10 backdrop-blur-sm bg-opacity-90`}
                 >
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-white/60">
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-white/60">
                       {currentQuestion.category}
                     </span>
-                    <span className="text-[10px] text-white/40">
-                      &#8226; Question {currentQuestionIdx + 1}/{answeredQuestions.length}
+                    <span className="text-[9px] text-white/40">
+                      &#8226; {currentQuestionIdx + 1}/{answeredQuestions.length}
                     </span>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl shrink-0">{currentQuestion.emoji}</span>
-                    <p className="text-base font-bold text-white leading-snug">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg shrink-0">{currentQuestion.emoji}</span>
+                    <p className="text-sm font-bold text-white leading-snug">
                       {currentQuestion.text}
                     </p>
                   </div>
@@ -211,15 +167,15 @@ export default function RecapMontage({
           </AnimatePresence>
 
           {/* Question timeline dots */}
-          <div className="flex justify-center gap-1.5 mt-3">
+          <div className="flex justify-center gap-1.5 mt-2">
             {answeredQuestions.map((q, i) => (
               <button
                 key={q.id}
                 onClick={() => jumpToQuestion(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
+                className={`h-1 rounded-full transition-all duration-300 ${
                   i === currentQuestionIdx
-                    ? "w-6 bg-burgundy-400"
-                    : "w-1.5 bg-white/25 hover:bg-white/50"
+                    ? "w-5 bg-burgundy-400"
+                    : "w-1 bg-white/30 hover:bg-white/60"
                 }`}
               />
             ))}
@@ -227,122 +183,34 @@ export default function RecapMontage({
         </div>
       </div>
 
-      {/* Action buttons */}
+      {/* Compact action bar */}
       <motion.div
-        className="shrink-0 px-4 pb-6 pt-2 space-y-2.5 border-t border-white/5"
-        initial={{ y: 30, opacity: 0 }}
+        className="shrink-0 px-4 py-3 flex items-center gap-2 bg-black"
+        initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5 }}
+        transition={{ delay: 0.4 }}
       >
-        {/* Share row */}
-        <div className="flex gap-2">
-          <button
-            onClick={handleNativeShare}
-            disabled={!videoBlob}
-            className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-burgundy-500 to-navy-500 font-bold text-sm shadow-lg shadow-burgundy-500/25 active:scale-95 transition-transform disabled:opacity-50"
-          >
-            Partager 🔗
-          </button>
-          <button
-            onClick={handleDownload}
-            disabled={!videoBlob || downloading}
-            className="py-3.5 px-4 rounded-xl bg-white/10 backdrop-blur font-bold text-sm border border-white/10 active:scale-95 transition-transform disabled:opacity-50"
-          >
-            {downloading ? "..." : "📥"}
-          </button>
-        </div>
-
-        {/* Social network buttons */}
-        <div className="flex gap-2">
-          <button
-            onClick={handleShareWhatsApp}
-            className="flex-1 py-3 rounded-xl bg-[#25D366]/20 border border-[#25D366]/30 text-sm font-bold text-[#25D366] active:scale-95 transition-transform"
-          >
-            WhatsApp
-          </button>
-          <button
-            onClick={handleShareLinkedIn}
-            className="flex-1 py-3 rounded-xl bg-[#0A66C2]/20 border border-[#0A66C2]/30 text-sm font-bold text-[#0A66C2] active:scale-95 transition-transform"
-          >
-            LinkedIn
-          </button>
-          <button
-            onClick={handleShareX}
-            className="flex-1 py-3 rounded-xl bg-white/10 border border-white/15 text-sm font-bold text-white/80 active:scale-95 transition-transform"
-          >
-            X
-          </button>
-          <button
-            onClick={handleCopyLink}
-            className="py-3 px-3 rounded-xl bg-white/10 border border-white/10 text-sm active:scale-95 transition-transform"
-            title="Copier le texte"
-          >
-            📋
-          </button>
-        </div>
-
+        <button
+          onClick={handleShare}
+          disabled={!videoBlob}
+          className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-burgundy-500 to-navy-500 font-bold text-xs active:scale-95 transition-transform disabled:opacity-50"
+        >
+          Partager
+        </button>
+        <button
+          onClick={handleDownload}
+          disabled={!videoBlob || downloading}
+          className="py-2.5 px-3 rounded-xl bg-white/10 text-xs active:scale-95 transition-transform disabled:opacity-50"
+        >
+          {downloading ? "..." : "📥"}
+        </button>
         <button
           onClick={onRestart}
-          className="w-full py-2.5 rounded-xl text-white/40 font-medium text-xs hover:text-white/70 transition-colors"
+          className="py-2.5 px-3 rounded-xl bg-white/5 text-xs text-white/40 active:scale-95 transition-transform"
         >
-          Recommencer
+          Refaire
         </button>
       </motion.div>
-
-      {/* Fallback share menu overlay (for browsers without native share) */}
-      <AnimatePresence>
-        {showShareMenu && (
-          <motion.div
-            className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-end"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowShareMenu(false)}
-          >
-            <motion.div
-              className="w-full bg-gray-900 rounded-t-3xl p-6 space-y-3 border-t border-white/10"
-              initial={{ y: 300 }}
-              animate={{ y: 0 }}
-              exit={{ y: 300 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
-              <h3 className="text-lg font-bold text-center mb-4">Partager sur...</h3>
-
-              <button
-                onClick={() => { handleShareWhatsApp(); setShowShareMenu(false); }}
-                className="w-full py-3.5 rounded-xl bg-[#25D366]/20 border border-[#25D366]/30 font-bold text-[#25D366] active:scale-95 transition-transform"
-              >
-                WhatsApp
-              </button>
-              <button
-                onClick={() => { handleShareLinkedIn(); setShowShareMenu(false); }}
-                className="w-full py-3.5 rounded-xl bg-[#0A66C2]/20 border border-[#0A66C2]/30 font-bold text-[#0A66C2] active:scale-95 transition-transform"
-              >
-                LinkedIn
-              </button>
-              <button
-                onClick={() => { handleShareX(); setShowShareMenu(false); }}
-                className="w-full py-3.5 rounded-xl bg-white/10 border border-white/15 font-bold text-white/80 active:scale-95 transition-transform"
-              >
-                X (Twitter)
-              </button>
-              <button
-                onClick={() => { handleDownload(); setShowShareMenu(false); }}
-                className="w-full py-3.5 rounded-xl bg-white/10 border border-white/10 font-bold text-white/60 active:scale-95 transition-transform"
-              >
-                Télécharger la vidéo 📥
-              </button>
-              <button
-                onClick={() => setShowShareMenu(false)}
-                className="w-full py-3 text-white/40 text-sm font-medium"
-              >
-                Annuler
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
