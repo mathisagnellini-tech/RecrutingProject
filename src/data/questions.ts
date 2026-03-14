@@ -15,10 +15,10 @@ export interface Question {
 export const questions: Question[] = [
   {
     id: 1,
-    text: "Présente-toi en 10 secondes chrono !",
+    text: "Présente-toi en quelques secondes !",
     category: "Ice Breaker",
     emoji: "👋",
-    duration: 15,
+    duration: 12,
     gradient: "from-burgundy-500 to-navy-500",
   },
   {
@@ -26,7 +26,7 @@ export const questions: Question[] = [
     text: "Ton plus grand talent caché ?",
     category: "Perso",
     emoji: "✨",
-    duration: 15,
+    duration: 12,
     gradient: "from-navy-500 to-burgundy-500",
   },
   {
@@ -34,7 +34,7 @@ export const questions: Question[] = [
     text: "Pourquoi toi et pas quelqu'un d'autre ?",
     category: "Motivation",
     emoji: "🔥",
-    duration: 20,
+    duration: 12,
     gradient: "from-burgundy-400 to-navy-400",
   },
   {
@@ -42,7 +42,7 @@ export const questions: Question[] = [
     text: "Ta plus grande fierté ?",
     category: "Perso",
     emoji: "🏆",
-    duration: 15,
+    duration: 12,
     gradient: "from-navy-400 to-burgundy-400",
   },
   {
@@ -50,7 +50,7 @@ export const questions: Question[] = [
     text: "Un mot pour te décrire ?",
     category: "Flash",
     emoji: "⚡",
-    duration: 10,
+    duration: 12,
     gradient: "from-burgundy-500 to-navy-400",
   },
   {
@@ -58,7 +58,7 @@ export const questions: Question[] = [
     text: "Qu'est-ce qui te fait vibrer ?",
     category: "Passion",
     emoji: "💥",
-    duration: 15,
+    duration: 12,
     gradient: "from-navy-500 to-burgundy-400",
   },
   {
@@ -66,7 +66,7 @@ export const questions: Question[] = [
     text: "Ton pire défaut, version honnête ?",
     category: "Honnêteté",
     emoji: "😅",
-    duration: 15,
+    duration: 12,
     gradient: "from-burgundy-400 to-navy-500",
   },
   {
@@ -74,7 +74,7 @@ export const questions: Question[] = [
     text: "Si t'avais un super pouvoir ?",
     category: "Fun",
     emoji: "🦸",
-    duration: 15,
+    duration: 12,
     gradient: "from-navy-400 to-burgundy-500",
   },
   {
@@ -82,7 +82,7 @@ export const questions: Question[] = [
     text: "C'est quoi ton rêve de ouf ?",
     category: "Ambition",
     emoji: "🚀",
-    duration: 15,
+    duration: 12,
     gradient: "from-burgundy-500 to-navy-500",
   },
   {
@@ -90,7 +90,7 @@ export const questions: Question[] = [
     text: "Un dernier mot pour convaincre ?",
     category: "Closing",
     emoji: "🎤",
-    duration: 15,
+    duration: 12,
     gradient: "from-navy-500 to-burgundy-500",
   },
 ];

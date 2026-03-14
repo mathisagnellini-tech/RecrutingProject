@@ -87,12 +87,12 @@ export default function QuestionOverlay({
           advanceToNext();
           return question.duration;
         }
-        return isSpeaking ? t : next;
+        return next;
       });
     }, 100);
 
     return () => clearInterval(interval);
-  }, [question, isAdvancing, isSpeaking, advanceToNext]);
+  }, [question, isAdvancing, advanceToNext]);
 
   if (!question) return null;
 
