@@ -45,9 +45,9 @@ export default function Home() {
     }
   }, [phase, stream, videoRef]);
 
-  // Start music when example begins, stop when recap
+  // Start music when example or countdown begins, stop when recap
   useEffect(() => {
-    if (phase === "example") {
+    if (phase === "example" || phase === "countdown") {
       startMusic();
     } else if (phase === "recap" || phase === "landing") {
       stopMusic();

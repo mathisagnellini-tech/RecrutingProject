@@ -16,6 +16,11 @@ export function useBackgroundMusic() {
     const ctx = new AudioContext();
     ctxRef.current = ctx;
 
+    // Ensure AudioContext is running (browsers block until user gesture)
+    if (ctx.state === "suspended") {
+      ctx.resume();
+    }
+
     // Master gain with fade-in
     const masterGain = ctx.createGain();
     masterGain.gain.setValueAtTime(0, ctx.currentTime);
