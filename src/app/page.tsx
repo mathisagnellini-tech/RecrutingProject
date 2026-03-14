@@ -32,6 +32,17 @@ export default function Home() {
   } = useCamera();
   const { startMusic, stopMusic } = useBackgroundMusic();
 
+  // Attach the camera stream to the video element whenever it mounts
+  useEffect(() => {
+    if (
+      (phase === "example" || phase === "countdown" || phase === "recording") &&
+      videoRef.current &&
+      stream
+    ) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [phase, stream, videoRef]);
+
   // Start music when example begins, stop when recap
   useEffect(() => {
     if (phase === "example") {
