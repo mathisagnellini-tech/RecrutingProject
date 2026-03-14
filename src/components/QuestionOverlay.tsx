@@ -374,7 +374,7 @@ export default function QuestionOverlay({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                {isLastQuestion ? "Terminer 🎬" : "Passer →"}
+                {isLastQuestion ? "Terminer 🎬" : "Question suivante →"}
               </motion.button>
             </motion.div>
           </AnimatePresence>
