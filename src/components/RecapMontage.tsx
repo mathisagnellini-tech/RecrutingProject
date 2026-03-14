@@ -11,7 +11,7 @@ interface RecapMontageProps {
   onRestart: () => void;
 }
 
-const DISPLAY_DELAY = 4; // must match QUESTION_DISPLAY_DELAY in QuestionOverlay
+const DISPLAY_DELAY = 3; // must match QUESTION_DISPLAY_DELAY in QuestionOverlay
 
 export default function RecapMontage({
   answeredIds,
@@ -23,6 +23,15 @@ export default function RecapMontage({
   const [downloading, setDownloading] = useState(false);
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(-1);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const skipRangesRef = useRef<{ start: number; end: number }[]>([]);
+
+  // Compute skip ranges (the reading/display phases to jump over)
+  useEffect(() => {
+    skipRangesRef.current = questionTimestamps.map((ts) => ({
+      start: ts,
+      end: ts + DISPLAY_DELAY,
+    }));
+  }, [questionTimestamps]);
 
   useEffect(() => {
     if (videoBlob) {
@@ -32,24 +41,30 @@ export default function RecapMontage({
     }
   }, [videoBlob]);
 
-  // Sync question overlay with video time
-  // Only show question AFTER the 4s display phase (when candidate was reading)
+  // Auto-skip reading phases & sync question overlay
   useEffect(() => {
     const video = videoRef.current;
     if (!video || questionTimestamps.length === 0) return;
 
     const onTimeUpdate = () => {
       const t = video.currentTime;
-      let idx = -1;
 
+      // Auto-skip: if we're in a reading phase, jump to the answer phase
+      for (const range of skipRangesRef.current) {
+        if (t >= range.start && t < range.end) {
+          video.currentTime = range.end;
+          return;
+        }
+      }
+
+      // Determine which question to show
+      let idx = -1;
       for (let i = questionTimestamps.length - 1; i >= 0; i--) {
-        const questionStart = questionTimestamps[i];
-        const answerStart = questionStart + DISPLAY_DELAY;
+        const answerStart = questionTimestamps[i] + DISPLAY_DELAY;
         const nextQuestionStart = i < questionTimestamps.length - 1
           ? questionTimestamps[i + 1]
           : Infinity;
 
-        // Show question only during the answer phase (after reading)
         if (t >= answerStart && t < nextQuestionStart) {
           idx = i;
           break;
@@ -134,7 +149,7 @@ export default function RecapMontage({
               style={{ transform: "scaleX(-1)" }}
             />
 
-            {/* Question overlay on video - only during answer phases */}
+            {/* Question overlay on video */}
             <div className="absolute bottom-12 left-3 right-3 z-10 pointer-events-none">
               <AnimatePresence mode="wait">
                 {currentQuestion && (

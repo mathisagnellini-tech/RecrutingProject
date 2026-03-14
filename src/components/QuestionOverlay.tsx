@@ -13,7 +13,7 @@ interface QuestionOverlayProps {
 }
 
 const QUESTION_DURATION = 12;
-const QUESTION_DISPLAY_DELAY = 4;
+const QUESTION_DISPLAY_DELAY = 3;
 
 export default function QuestionOverlay({
   questionIndex,
@@ -363,10 +363,10 @@ export default function QuestionOverlay({
 
               {/* Button */}
               <motion.button
-                className={`mt-2 w-full py-2 rounded-xl backdrop-blur-sm text-sm font-semibold active:bg-white/20 transition-colors ${
+                className={`mt-2 w-full py-3 rounded-xl backdrop-blur-sm text-sm font-bold active:scale-95 transition-all ${
                   isLastQuestion
-                    ? "bg-gradient-to-r from-burgundy-500 to-navy-500 text-white"
-                    : "bg-white/10 text-white/60"
+                    ? "bg-gradient-to-r from-burgundy-500 to-navy-500 text-white shadow-lg shadow-burgundy-500/30"
+                    : "bg-white/20 border border-white/20 text-white"
                 }`}
                 whileTap={{ scale: 0.97 }}
                 onClick={advanceToNext}
