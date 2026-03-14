@@ -12,6 +12,7 @@ interface RecapMontageProps {
 }
 
 const DISPLAY_DELAY = 3; // must match QUESTION_DISPLAY_DELAY in QuestionOverlay
+const QUESTION_CARD_DURATION = 2000; // ms to show question card before video
 
 export default function RecapMontage({
   answeredIds,
@@ -21,17 +22,19 @@ export default function RecapMontage({
 }: RecapMontageProps) {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
-  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(-1);
+  const [currentSegment, setCurrentSegment] = useState(0);
+  const [showingCard, setShowingCard] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const skipRangesRef = useRef<{ start: number; end: number }[]>([]);
+  const cardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Compute skip ranges (the reading/display phases to jump over)
-  useEffect(() => {
-    skipRangesRef.current = questionTimestamps.map((ts) => ({
-      start: ts,
-      end: ts + DISPLAY_DELAY,
-    }));
-  }, [questionTimestamps]);
+  const answeredQuestions = questions.filter((q) => answeredIds.includes(q.id));
+
+  // Build segments: for each question, answer starts after DISPLAY_DELAY
+  const segments = questionTimestamps.map((ts, i) => ({
+    answerStart: ts + DISPLAY_DELAY,
+    answerEnd: i < questionTimestamps.length - 1 ? questionTimestamps[i + 1] : Infinity,
+    question: answeredQuestions[i],
+  }));
 
   useEffect(() => {
     if (videoBlob) {
@@ -41,42 +44,71 @@ export default function RecapMontage({
     }
   }, [videoBlob]);
 
-  // Auto-skip reading phases & sync question overlay
+  // Start playback: show card for segment 0, then play video
+  const playSegment = useCallback((segIdx: number) => {
+    const video = videoRef.current;
+    if (!video || segIdx >= segments.length) return;
+
+    // Show the question card first
+    setCurrentSegment(segIdx);
+    setShowingCard(true);
+    video.pause();
+
+    cardTimerRef.current = setTimeout(() => {
+      setShowingCard(false);
+      // Seek to answer start (skip reading phase)
+      video.currentTime = segments[segIdx].answerStart;
+      video.play();
+    }, QUESTION_CARD_DURATION);
+  }, [segments]);
+
+  // On video loaded, start first segment
   useEffect(() => {
     const video = videoRef.current;
-    if (!video || questionTimestamps.length === 0) return;
+    if (!video || !videoUrl) return;
+
+    const onLoaded = () => {
+      playSegment(0);
+    };
+
+    if (video.readyState >= 1) {
+      onLoaded();
+    } else {
+      video.addEventListener("loadedmetadata", onLoaded, { once: true });
+      return () => video.removeEventListener("loadedmetadata", onLoaded);
+    }
+  }, [videoUrl, playSegment]);
+
+  // Watch video time — when answer segment ends, advance to next
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
 
     const onTimeUpdate = () => {
-      const t = video.currentTime;
+      if (showingCard) return;
+      const seg = segments[currentSegment];
+      if (!seg) return;
 
-      // Auto-skip: if we're in a reading phase, jump to the answer phase
-      for (const range of skipRangesRef.current) {
-        if (t >= range.start && t < range.end) {
-          video.currentTime = range.end;
-          return;
+      // If we've reached the end of this answer segment
+      if (seg.answerEnd !== Infinity && video.currentTime >= seg.answerEnd) {
+        const nextIdx = currentSegment + 1;
+        if (nextIdx < segments.length) {
+          playSegment(nextIdx);
         }
+        // Last segment: let video play to natural end
       }
-
-      // Determine which question to show
-      let idx = -1;
-      for (let i = questionTimestamps.length - 1; i >= 0; i--) {
-        const answerStart = questionTimestamps[i] + DISPLAY_DELAY;
-        const nextQuestionStart = i < questionTimestamps.length - 1
-          ? questionTimestamps[i + 1]
-          : Infinity;
-
-        if (t >= answerStart && t < nextQuestionStart) {
-          idx = i;
-          break;
-        }
-      }
-
-      setCurrentQuestionIdx(idx);
     };
 
     video.addEventListener("timeupdate", onTimeUpdate);
     return () => video.removeEventListener("timeupdate", onTimeUpdate);
-  }, [questionTimestamps]);
+  }, [currentSegment, showingCard, segments, playSegment]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (cardTimerRef.current) clearTimeout(cardTimerRef.current);
+    };
+  }, []);
 
   const handleDownload = useCallback(() => {
     if (!videoBlob) return;
@@ -111,8 +143,7 @@ export default function RecapMontage({
     }
   }, [videoBlob, handleDownload]);
 
-  const answeredQuestions = questions.filter((q) => answeredIds.includes(q.id));
-  const currentQuestion = currentQuestionIdx >= 0 ? answeredQuestions[currentQuestionIdx] : null;
+  const currentQuestion = segments[currentSegment]?.question;
 
   return (
     <div className="relative w-full h-full bg-black flex flex-col">
@@ -130,55 +161,112 @@ export default function RecapMontage({
         </p>
       </motion.div>
 
-      {/* Video with question overlay */}
+      {/* Video area */}
       <div className="flex-1 min-h-0 px-3 pb-2 relative">
-        {videoUrl && (
-          <motion.div
-            className="w-full h-full rounded-2xl overflow-hidden relative"
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-          >
+        <motion.div
+          className="w-full h-full rounded-2xl overflow-hidden relative bg-black"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          {/* Video element (hidden during question card) */}
+          {videoUrl && (
             <video
               ref={videoRef}
               src={videoUrl}
-              controls
               playsInline
-              autoPlay
-              className="w-full h-full object-cover bg-black"
+              muted={false}
+              className={`absolute inset-0 w-full h-full object-cover bg-black transition-opacity duration-300 ${
+                showingCard ? "opacity-0" : "opacity-100"
+              }`}
               style={{ transform: "scaleX(-1)" }}
             />
+          )}
 
-            {/* Question overlay on video */}
-            <div className="absolute bottom-12 left-3 right-3 z-10 pointer-events-none">
-              <AnimatePresence mode="wait">
-                {currentQuestion && (
-                  <motion.div
-                    key={currentQuestion.id}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -10, opacity: 0 }}
-                    transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  >
-                    <div className="bg-black/50 backdrop-blur-md rounded-xl p-3 border border-white/10">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg shrink-0">{currentQuestion.emoji}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[9px] text-white/50 font-bold uppercase tracking-wider">
-                            {currentQuestion.category}
-                          </p>
-                          <p className="text-sm font-bold text-white leading-snug">
-                            {currentQuestion.text}
-                          </p>
-                        </div>
-                      </div>
+          {/* Question card overlay (full screen, like candidate sees it) */}
+          <AnimatePresence mode="wait">
+            {showingCard && currentQuestion && (
+              <motion.div
+                key={`card-${currentQuestion.id}`}
+                className="absolute inset-0 flex flex-col items-center justify-center z-20"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                {/* Background gradient */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${currentQuestion.gradient} opacity-90`} />
+
+                {/* Question number */}
+                <motion.div
+                  className="relative z-10 mb-4"
+                  initial={{ y: -20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <span className="inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-white/20 backdrop-blur-sm">
+                    {currentSegment + 1}/{answeredQuestions.length} — {currentQuestion.category}
+                  </span>
+                </motion.div>
+
+                {/* Question content */}
+                <motion.div
+                  className="relative z-10 mx-6 max-w-sm w-full"
+                  initial={{ y: 30, opacity: 0, scale: 0.9 }}
+                  animate={{ y: 0, opacity: 1, scale: 1 }}
+                  transition={{ type: "spring", damping: 20, stiffness: 250, delay: 0.15 }}
+                >
+                  <div className="rounded-2xl p-6 bg-black/30 backdrop-blur-sm border border-white/20">
+                    <div className="flex items-start gap-4">
+                      <motion.span
+                        className="text-4xl shrink-0"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                      >
+                        {currentQuestion.emoji}
+                      </motion.span>
+                      <p className="text-xl font-black text-white leading-snug pt-1">
+                        {currentQuestion.text}
+                      </p>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Progress dots during video playback */}
+          {!showingCard && (
+            <div className="absolute top-3 left-3 right-3 z-10 flex gap-1">
+              {answeredQuestions.map((_, i) => (
+                <div
+                  key={i}
+                  className={`h-0.5 flex-1 rounded-full transition-all duration-300 ${
+                    i < currentSegment
+                      ? "bg-burgundy-400"
+                      : i === currentSegment
+                      ? "bg-white/80"
+                      : "bg-white/20"
+                  }`}
+                />
+              ))}
             </div>
-          </motion.div>
-        )}
+          )}
+
+          {/* Small question reminder at bottom during video */}
+          {!showingCard && currentQuestion && (
+            <div className="absolute bottom-3 left-3 right-3 z-10 pointer-events-none">
+              <div className="bg-black/40 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/10">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm shrink-0">{currentQuestion.emoji}</span>
+                  <p className="text-xs font-semibold text-white/80 leading-snug truncate">
+                    {currentQuestion.text}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+        </motion.div>
       </div>
 
       {/* Compact action bar */}

@@ -26,19 +26,26 @@ export default function QuestionOverlay({
   const [phase, setPhase] = useState<"display" | "countdown" | "transition">("display");
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
+  const prevIndexRef = useRef(questionIndex);
 
   const question: Question | undefined = questions[questionIndex];
   const isLastQuestion = questionIndex >= questions.length - 1;
   const { isSpeaking } = useVoiceActivity(stream, questionIndex);
 
-  // Reset to display phase when question changes
+  // Reset timers only when questionIndex actually advances (NOT during transition)
   useEffect(() => {
-    setPhase("display");
-    setDisplayTimer(0);
-    setTimer(0);
+    if (questionIndex !== prevIndexRef.current) {
+      prevIndexRef.current = questionIndex;
+      // Don't reset if we're in transition — the timeout in advanceToNext handles it
+      if (phaseRef.current !== "transition") {
+        setPhase("display");
+        setDisplayTimer(0);
+        setTimer(0);
+      }
+    }
   }, [questionIndex]);
 
-  // Display phase: 4s reading time
+  // Display phase: 3s reading time
   useEffect(() => {
     if (phase !== "display" || !question) return;
 
@@ -64,14 +71,16 @@ export default function QuestionOverlay({
       navigator.vibrate(50);
     }
 
+    const wasLastQuestion = isLastQuestion;
     onAnswered(question.id);
 
     setTimeout(() => {
       setTimer(0);
       setDisplayTimer(0);
-      setPhase("display");
-      if (isLastQuestion) {
+      if (wasLastQuestion) {
         onAllDone();
+      } else {
+        setPhase("display");
       }
     }, 1200);
   }, [question, isLastQuestion, onAnswered, onAllDone]);
