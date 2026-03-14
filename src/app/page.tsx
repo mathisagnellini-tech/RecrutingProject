@@ -45,23 +45,22 @@ export default function Home() {
     }
   }, [phase, stream, videoRef]);
 
-  // Start music when example or countdown begins, stop when recap
+  // Stop music on recap or landing
   useEffect(() => {
-    if (phase === "example" || phase === "countdown") {
-      startMusic();
-    } else if (phase === "recap" || phase === "landing") {
+    if (phase === "recap" || phase === "landing") {
       stopMusic();
     }
-  }, [phase, startMusic, stopMusic]);
+  }, [phase, stopMusic]);
 
   const handleStartExample = useCallback(async () => {
     try {
       await startCamera();
+      startMusic(); // Start music on user click (required for AudioContext)
       setPhase("example");
     } catch {
       alert("Impossible d'accéder à la caméra. Vérifie tes autorisations.");
     }
-  }, [startCamera]);
+  }, [startCamera, startMusic]);
 
   const handleExampleDone = useCallback(() => {
     setPhase("countdown");
@@ -70,11 +69,12 @@ export default function Home() {
   const handleGoDirectly = useCallback(async () => {
     try {
       await startCamera();
+      startMusic(); // Start music on user click (required for AudioContext)
       setPhase("countdown");
     } catch {
       alert("Impossible d'accéder à la caméra. Vérifie tes autorisations.");
     }
-  }, [startCamera]);
+  }, [startCamera, startMusic]);
 
   const handleCountdownDone = useCallback(() => {
     startRecording();

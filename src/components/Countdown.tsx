@@ -1,121 +1,95 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface CountdownProps {
   onDone: () => void;
 }
 
+/**
+ * Simple countdown without AnimatePresence to avoid skipping numbers.
+ * Phases: intro (3s) → 3 (1s) → 2 (1s) → 1 (1s) → GO (0.5s) → done
+ */
 export default function Countdown({ onDone }: CountdownProps) {
-  const [phase, setPhase] = useState<"intro" | "countdown" | "go">("intro");
-  const [count, setCount] = useState(3);
+  const [step, setStep] = useState<"intro" | "3" | "2" | "1" | "go" | "done">("intro");
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
 
-  // Intro → 3s → switch to countdown
   useEffect(() => {
-    if (phase === "intro") {
-      const t = setTimeout(() => setPhase("countdown"), 3000);
-      return () => clearTimeout(t);
-    }
-  }, [phase]);
+    const delays: Record<string, { next: typeof step; ms: number }> = {
+      intro: { next: "3", ms: 3000 },
+      "3": { next: "2", ms: 1000 },
+      "2": { next: "1", ms: 1000 },
+      "1": { next: "go", ms: 1000 },
+      go: { next: "done", ms: 500 },
+    };
 
-  // Countdown 3 → 2 → 1 → go
-  useEffect(() => {
-    if (phase !== "countdown") return;
+    const config = delays[step];
+    if (!config) return;
 
     const t = setTimeout(() => {
-      if (count > 1) {
-        setCount(count - 1);
+      if (config.next === "done") {
+        onDoneRef.current();
       } else {
-        setPhase("go");
+        setStep(config.next);
       }
-    }, 1000);
+    }, config.ms);
 
     return () => clearTimeout(t);
-  }, [phase, count]);
-
-  // "go" phase → fire onDone after brief delay
-  useEffect(() => {
-    if (phase !== "go") return;
-    const t = setTimeout(() => onDoneRef.current(), 400);
-    return () => clearTimeout(t);
-  }, [phase]);
+  }, [step]);
 
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <AnimatePresence mode="wait">
-        {phase === "intro" && (
-          <motion.div
-            key="intro"
-            className="text-center px-8"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.1, opacity: 0 }}
-            transition={{ type: "spring", damping: 15 }}
-          >
-            <motion.p
-              className="text-4xl font-black text-white leading-tight"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-            >
-              10 questions
-            </motion.p>
-            <motion.p
-              className="text-2xl font-bold text-burgundy-400 mt-2"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              12s par question
-            </motion.p>
-            <motion.p
-              className="text-2xl font-bold text-white/60 mt-1"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              1min20
-            </motion.p>
-            <motion.p
-              className="text-xl font-black gradient-text mt-4"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              À toi de jouer !
-            </motion.p>
-          </motion.div>
-        )}
+      {step === "intro" && (
+        <div className="text-center px-8 animate-fade-in">
+          <p className="text-4xl font-black text-white leading-tight">
+            10 questions
+          </p>
+          <p className="text-2xl font-bold text-burgundy-400 mt-2">
+            12s par question
+          </p>
+          <p className="text-2xl font-bold text-white/60 mt-1">
+            1min20
+          </p>
+          <p className="text-xl font-black gradient-text mt-4">
+            À toi de jouer !
+          </p>
+        </div>
+      )}
 
-        {phase === "countdown" && (
-          <motion.div
-            key={`count-${count}`}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 2, opacity: 0 }}
-            transition={{ duration: 0.35, type: "spring", damping: 12 }}
-            className="text-8xl font-black text-white"
-          >
-            {count}
-          </motion.div>
-        )}
+      {(step === "3" || step === "2" || step === "1") && (
+        <div key={step} className="countdown-number">
+          <span className="text-8xl font-black text-white">
+            {step}
+          </span>
+        </div>
+      )}
 
-        {phase === "go" && (
-          <motion.div
-            key="go"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 1.5, opacity: 0 }}
-            transition={{ type: "spring", damping: 10 }}
-            className="text-5xl font-black gradient-text"
-          >
+      {step === "go" && (
+        <div className="countdown-number">
+          <span className="text-5xl font-black gradient-text">
             GO !
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </span>
+        </div>
+      )}
+
+      <style jsx>{`
+        .countdown-number {
+          animation: countPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes countPop {
+          0% { transform: scale(0); opacity: 0; }
+          60% { transform: scale(1.15); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+          0% { opacity: 0; transform: scale(0.9); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+      `}</style>
     </div>
   );
 }
