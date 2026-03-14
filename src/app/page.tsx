@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ExampleVideo from "@/components/ExampleVideo";
 import QuestionOverlay from "@/components/QuestionOverlay";
@@ -20,6 +20,8 @@ export default function Home() {
   const [phase, setPhase] = useState<AppPhase>("landing");
   const [questionIndex, setQuestionIndex] = useState(0);
   const [answeredIds, setAnsweredIds] = useState<number[]>([]);
+  const [questionTimestamps, setQuestionTimestamps] = useState<number[]>([]);
+  const recordingStartRef = useRef<number>(0);
   const {
     videoRef,
     stream,
@@ -76,12 +78,16 @@ export default function Home() {
 
   const handleCountdownDone = useCallback(() => {
     startRecording();
+    recordingStartRef.current = Date.now();
+    setQuestionTimestamps([0]); // First question starts at t=0
     setPhase("recording");
   }, [startRecording]);
 
   const handleAnswered = useCallback((questionId: number) => {
     setAnsweredIds((prev) => [...prev, questionId]);
     setQuestionIndex((i) => i + 1);
+    const elapsed = (Date.now() - recordingStartRef.current) / 1000;
+    setQuestionTimestamps((prev) => [...prev, elapsed]);
   }, []);
 
   const handleAllDone = useCallback(() => {
@@ -94,6 +100,7 @@ export default function Home() {
     setPhase("landing");
     setQuestionIndex(0);
     setAnsweredIds([]);
+    setQuestionTimestamps([]);
     resetRecording();
   }, [resetRecording]);
 
@@ -264,6 +271,7 @@ export default function Home() {
               <RecapMontage
                 answeredIds={answeredIds}
                 videoBlob={recordedBlob}
+                questionTimestamps={questionTimestamps}
                 onRestart={handleRestart}
               />
             </motion.div>
