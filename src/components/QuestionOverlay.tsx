@@ -12,7 +12,7 @@ interface QuestionOverlayProps {
   onAllDone: () => void;
 }
 
-const SILENCE_THRESHOLD_MS = 1500;
+const QUESTION_DURATION = 12; // strict 12 seconds per question
 
 export default function QuestionOverlay({
   questionIndex,
@@ -23,38 +23,19 @@ export default function QuestionOverlay({
   const [timer, setTimer] = useState(0);
   const [showTransition, setShowTransition] = useState(false);
   const [isAdvancing, setIsAdvancing] = useState(false);
-  const [answeredQuestions, setAnsweredQuestions] = useState<number[]>([]);
-  const [silenceCountdown, setSilenceCountdown] = useState<number | null>(null);
 
   const question: Question | undefined = questions[questionIndex];
   const isLastQuestion = questionIndex >= questions.length - 1;
-  const nextQuestion: Question | undefined = questions[questionIndex + 1];
-  const { isSpeaking, hasSpoken, silenceDurationMs } = useVoiceActivity(stream, questionIndex);
-
-  // Update silence countdown display
-  useEffect(() => {
-    if (hasSpoken && !isSpeaking && !isAdvancing && silenceDurationMs > 0) {
-      const remaining = Math.ceil((SILENCE_THRESHOLD_MS - silenceDurationMs) / 1000);
-      if (remaining > 0 && remaining <= 3) {
-        setSilenceCountdown(remaining);
-      } else {
-        setSilenceCountdown(null);
-      }
-    } else {
-      setSilenceCountdown(null);
-    }
-  }, [hasSpoken, isSpeaking, silenceDurationMs, isAdvancing]);
+  const { isSpeaking } = useVoiceActivity(stream, questionIndex);
 
   const advanceToNext = useCallback(() => {
     if (isAdvancing) return;
     setIsAdvancing(true);
 
-    // Haptic feedback on mobile
     if (navigator.vibrate) {
       navigator.vibrate(50);
     }
 
-    setAnsweredQuestions((prev) => [...prev, questionIndex]);
     onAnswered(question.id);
 
     setShowTransition(true);
@@ -65,27 +46,19 @@ export default function QuestionOverlay({
       if (isLastQuestion) {
         onAllDone();
       }
-    }, 1500);
-  }, [isAdvancing, questionIndex, question, isLastQuestion, onAnswered, onAllDone]);
+    }, 1200);
+  }, [isAdvancing, question, isLastQuestion, onAnswered, onAllDone]);
 
-  // Voice-based auto-advance: silence after speech
-  useEffect(() => {
-    if (!question || isAdvancing || showTransition) return;
-    if (hasSpoken && silenceDurationMs >= SILENCE_THRESHOLD_MS) {
-      advanceToNext();
-    }
-  }, [hasSpoken, silenceDurationMs, question, isAdvancing, showTransition, advanceToNext]);
-
-  // Safety net: max timer auto-advance
+  // Strict 12s timer - always counts, never pauses
   useEffect(() => {
     if (!question || isAdvancing) return;
 
     const interval = setInterval(() => {
       setTimer((t) => {
         const next = t + 0.1;
-        if (next >= question.duration) {
+        if (next >= QUESTION_DURATION) {
           advanceToNext();
-          return question.duration;
+          return QUESTION_DURATION;
         }
         return next;
       });
@@ -96,7 +69,8 @@ export default function QuestionOverlay({
 
   if (!question) return null;
 
-  const progress = (timer / question.duration) * 100;
+  const remainingSeconds = Math.ceil(QUESTION_DURATION - timer);
+  const progress = (timer / QUESTION_DURATION) * 100;
 
   return (
     <div className="absolute inset-0 z-30 pointer-events-none">
@@ -133,9 +107,19 @@ export default function QuestionOverlay({
               </div>
             )}
           </div>
-          <span className="text-xs font-bold text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1">
-            {questionIndex + 1}/{questions.length}
-          </span>
+          <div className="flex items-center gap-2">
+            {/* Remaining seconds */}
+            <span
+              className={`text-xs font-black tabular-nums bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1 ${
+                remainingSeconds <= 3 ? "text-red-400" : "text-white/80"
+              }`}
+            >
+              {remainingSeconds}s
+            </span>
+            <span className="text-xs font-bold text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1">
+              {questionIndex + 1}/{questions.length}
+            </span>
+          </div>
         </div>
         {/* Progress dots */}
         <div className="flex gap-1 mt-2">
@@ -162,64 +146,7 @@ export default function QuestionOverlay({
         <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/40 rounded-br-lg" />
       </div>
 
-      {/* Silence countdown circle - centered on screen */}
-      <AnimatePresence>
-        {silenceCountdown !== null && (
-          <motion.div
-            className="absolute inset-0 flex items-center justify-center pointer-events-none z-40"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div className="relative w-20 h-20">
-              {/* Background circle */}
-              <svg className="w-full h-full -rotate-90" viewBox="0 0 80 80">
-                <circle
-                  cx="40"
-                  cy="40"
-                  r="35"
-                  fill="none"
-                  stroke="rgba(255,255,255,0.15)"
-                  strokeWidth="3"
-                />
-                <motion.circle
-                  cx="40"
-                  cy="40"
-                  r="35"
-                  fill="none"
-                  stroke="url(#countdownGradient)"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeDasharray={2 * Math.PI * 35}
-                  initial={{ strokeDashoffset: 0 }}
-                  animate={{ strokeDashoffset: 2 * Math.PI * 35 }}
-                  transition={{ duration: SILENCE_THRESHOLD_MS / 1000, ease: "linear" }}
-                />
-                <defs>
-                  <linearGradient id="countdownGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#c2185b" />
-                    <stop offset="100%" stopColor="#e91e63" />
-                  </linearGradient>
-                </defs>
-              </svg>
-              {/* Number */}
-              <motion.div
-                key={silenceCountdown}
-                className="absolute inset-0 flex items-center justify-center"
-                initial={{ scale: 1.5, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: "spring", damping: 15 }}
-              >
-                <span className="text-2xl font-black text-white">
-                  {silenceCountdown}
-                </span>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Transition: show next question big OR recap message */}
+      {/* Transition overlay - shows current question as "done" */}
       <AnimatePresence>
         {showTransition && (
           <motion.div
@@ -229,7 +156,6 @@ export default function QuestionOverlay({
             exit={{ opacity: 0 }}
           >
             {isLastQuestion ? (
-              /* Last question → "Voici le récap" */
               <motion.div
                 className="text-center"
                 initial={{ scale: 0, rotate: -10 }}
@@ -257,40 +183,30 @@ export default function QuestionOverlay({
                 </motion.p>
               </motion.div>
             ) : (
-              /* Normal transition → show next question big */
               <motion.div
                 className="text-center"
-                initial={{ y: 40, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -30, opacity: 0 }}
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
                 transition={{ type: "spring", damping: 15 }}
               >
-                <motion.div
-                  className="mb-3"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", delay: 0.1 }}
+                <motion.span
+                  className="text-5xl"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 0.5 }}
                 >
-                  <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r ${nextQuestion?.gradient} shadow-lg`}>
-                    {nextQuestion?.category}
-                  </span>
-                </motion.div>
+                  {question.emoji}
+                </motion.span>
+                <p className="text-lg font-bold text-white/60 mt-2">
+                  ✓ {question.text}
+                </p>
                 <motion.p
-                  className="text-3xl font-black text-white leading-tight"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.15, type: "spring", damping: 12 }}
-                >
-                  <span className="text-4xl mr-2">{nextQuestion?.emoji}</span>
-                  {nextQuestion?.text}
-                </motion.p>
-                <motion.p
-                  className="text-white/40 text-xs mt-4 uppercase tracking-widest font-bold"
+                  className="text-white/30 text-xs mt-3 uppercase tracking-widest font-bold"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.4 }}
+                  transition={{ delay: 0.3 }}
                 >
-                  Prépare-toi...
+                  Question suivante...
                 </motion.p>
               </motion.div>
             )}
@@ -298,143 +214,104 @@ export default function QuestionOverlay({
         )}
       </AnimatePresence>
 
-      {/* Bottom section: answered questions + current question + skip */}
-      <div className="absolute inset-x-4 bottom-6 pointer-events-auto">
-        {/* Previously answered - show last 2 max */}
-        <div className="space-y-1.5 mb-3">
-          <AnimatePresence>
-            {answeredQuestions.slice(-2).map((qIdx) => {
-              const q = questions[qIdx];
-              return (
-                <motion.div
-                  key={q.id}
-                  className="bg-white/10 backdrop-blur-sm rounded-xl px-3 py-2"
-                  initial={{ opacity: 1 }}
-                  animate={{ opacity: 0.35 }}
-                  layout
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm">{q.emoji}</span>
-                    <span className="text-xs text-white/50 line-through">{q.text}</span>
-                  </div>
-                </motion.div>
-              );
-            })}
+      {/* Bottom section: current question + skip */}
+      {!showTransition && (
+        <div className="absolute inset-x-4 bottom-6 pointer-events-auto">
+          {/* Current question card */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={question.id}
+              initial={{ y: 80, opacity: 0, scale: 0.85 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -60, opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", damping: 22, stiffness: 280 }}
+            >
+              {/* Category */}
+              <motion.div
+                className="mb-2"
+                initial={{ x: -30, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.15 }}
+              >
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${question.gradient} shadow-lg`}>
+                  {question.category}
+                </span>
+              </motion.div>
+
+              {/* Question */}
+              <div className="bg-black/50 backdrop-blur-md rounded-2xl p-5 shadow-2xl shadow-black/30 border border-white/10">
+                <div className="flex items-start gap-3">
+                  <motion.span
+                    className="text-2xl shrink-0"
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                  >
+                    {question.emoji}
+                  </motion.span>
+                  <p className="text-lg font-bold text-white leading-snug">
+                    {question.text}
+                  </p>
+                </div>
+
+                {/* Voice status */}
+                <div className="mt-4 flex items-center gap-2">
+                  {isSpeaking ? (
+                    <>
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <motion.div
+                            key={i}
+                            className="w-1 bg-burgundy-400 rounded-full"
+                            animate={{ height: [3, 10 + Math.random() * 8, 3] }}
+                            transition={{
+                              duration: 0.3 + Math.random() * 0.2,
+                              repeat: Infinity,
+                              delay: i * 0.08,
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-burgundy-300 font-semibold uppercase tracking-wider">
+                        En écoute...
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-[10px] text-white/30 font-medium">
+                      Réponds à voix haute !
+                    </span>
+                  )}
+                </div>
+
+                {/* Timer bar */}
+                <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <motion.div
+                    className={`h-full rounded-full transition-colors duration-500 ${
+                      remainingSeconds <= 3
+                        ? "bg-red-400"
+                        : isSpeaking
+                        ? "bg-burgundy-400"
+                        : "bg-white/60"
+                    }`}
+                    style={{ width: `${100 - progress}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Skip button */}
+              <motion.button
+                className="mt-3 w-full py-2.5 rounded-xl bg-white/10 backdrop-blur-sm text-sm font-semibold text-white/60 active:bg-white/20 transition-colors"
+                whileTap={{ scale: 0.97 }}
+                onClick={advanceToNext}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                Passer →
+              </motion.button>
+            </motion.div>
           </AnimatePresence>
         </div>
-
-        {/* Current question card */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={question.id}
-            initial={{ y: 80, opacity: 0, scale: 0.85 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -60, opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", damping: 22, stiffness: 280 }}
-          >
-            {/* Category */}
-            <motion.div
-              className="mb-2"
-              initial={{ x: -30, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.15 }}
-            >
-              <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${question.gradient} shadow-lg`}>
-                {question.category}
-              </span>
-            </motion.div>
-
-            {/* Question */}
-            <div className="bg-black/50 backdrop-blur-md rounded-2xl p-5 shadow-2xl shadow-black/30 border border-white/10">
-              <div className="flex items-start gap-3">
-                <motion.span
-                  className="text-2xl shrink-0"
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                >
-                  {question.emoji}
-                </motion.span>
-                <p className="text-lg font-bold text-white leading-snug">
-                  {question.text}
-                </p>
-              </div>
-
-              {/* Voice status + timer */}
-              <div className="mt-4 flex items-center gap-2">
-                {isSpeaking ? (
-                  <>
-                    <div className="flex items-center gap-0.5">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <motion.div
-                          key={i}
-                          className="w-1 bg-burgundy-400 rounded-full"
-                          animate={{ height: [3, 10 + Math.random() * 8, 3] }}
-                          transition={{
-                            duration: 0.3 + Math.random() * 0.2,
-                            repeat: Infinity,
-                            delay: i * 0.08,
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-[10px] text-burgundy-300 font-semibold uppercase tracking-wider">
-                      En écoute...
-                    </span>
-                  </>
-                ) : hasSpoken ? (
-                  <motion.div
-                    className="flex items-center gap-2"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                  >
-                    <motion.div
-                      className="w-4 h-4 rounded-full border-2 border-burgundy-400"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                      style={{
-                        borderTopColor: "transparent",
-                      }}
-                    />
-                    <span className="text-[10px] text-burgundy-300 font-semibold uppercase tracking-wider">
-                      Question suivante...
-                    </span>
-                  </motion.div>
-                ) : (
-                  <span className="text-[10px] text-white/30 font-medium">
-                    Réponds à voix haute !
-                  </span>
-                )}
-              </div>
-
-              {/* Timer bar */}
-              <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <motion.div
-                  className={`h-full rounded-full transition-colors duration-500 ${
-                    isSpeaking
-                      ? "bg-burgundy-400"
-                      : progress > 75
-                      ? "bg-red-400"
-                      : "bg-white/60"
-                  }`}
-                  style={{ width: `${100 - progress}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Skip button */}
-            <motion.button
-              className="mt-3 w-full py-2.5 rounded-xl bg-white/10 backdrop-blur-sm text-sm font-semibold text-white/60 active:bg-white/20 transition-colors"
-              whileTap={{ scale: 0.97 }}
-              onClick={advanceToNext}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              Passer →
-            </motion.button>
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      )}
     </div>
   );
 }
