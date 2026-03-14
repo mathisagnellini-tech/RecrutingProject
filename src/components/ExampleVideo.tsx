@@ -4,86 +4,53 @@ import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { questions } from "@/data/questions";
 
-export default function ExampleVideo({ onFinished, videoRef }: { onFinished: () => void; videoRef?: React.RefObject<HTMLVideoElement> }) {
-  const [currentQ, setCurrentQ] = useState(-1);
-  const [showAnswer, setShowAnswer] = useState(false);
-  const [timer, setTimer] = useState(0);
+interface ExampleVideoProps {
+  onFinished: () => void;
+  videoRef?: React.RefObject<HTMLVideoElement>;
+}
 
-  const exampleAnswers = [
-    "A", "A", "B", "A", "A", "B", "B", "A", "A", "B",
-  ];
+export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps) {
+  const [currentQ, setCurrentQ] = useState(-1);
+  const [answeredQuestions, setAnsweredQuestions] = useState<number[]>([]);
+  const [showIntro, setShowIntro] = useState(true);
 
   const advanceQuestion = useCallback(() => {
-    if (currentQ >= questions.length - 1) {
-      onFinished();
-      return;
-    }
-    setShowAnswer(false);
-    setCurrentQ((q) => q + 1);
-    setTimer(0);
-  }, [currentQ, onFinished]);
+    setCurrentQ((prev) => {
+      const next = prev + 1;
+      if (next >= 3) {
+        // Only show 3 questions in example
+        onFinished();
+        return prev;
+      }
+      if (prev >= 0) {
+        setAnsweredQuestions((a) => [...a, prev]);
+      }
+      return next;
+    });
+  }, [onFinished]);
 
+  // Intro → first question
   useEffect(() => {
-    if (currentQ === -1) {
-      const t = setTimeout(() => advanceQuestion(), 2000);
-      return () => clearTimeout(t);
-    }
+    if (!showIntro) return;
+    const t = setTimeout(() => {
+      setShowIntro(false);
+      setCurrentQ(0);
+    }, 2500);
+    return () => clearTimeout(t);
+  }, [showIntro]);
 
-    const q = questions[currentQ];
-    if (!q) return;
-
-    // Use shorter durations for example (3s per question)
-    const exampleDuration = 3000;
-    const answerTimeout = setTimeout(() => setShowAnswer(true), exampleDuration / 2);
-    const nextTimeout = setTimeout(() => advanceQuestion(), exampleDuration);
-
-    const interval = setInterval(() => {
-      setTimer((t) => Math.min(t + 0.1, exampleDuration / 1000));
-    }, 100);
-
-    return () => {
-      clearTimeout(answerTimeout);
-      clearTimeout(nextTimeout);
-      clearInterval(interval);
-    };
-  }, [currentQ, advanceQuestion]);
+  // Auto-advance each question after 4s in example
+  useEffect(() => {
+    if (currentQ < 0 || showIntro) return;
+    const t = setTimeout(() => advanceQuestion(), 4000);
+    return () => clearTimeout(t);
+  }, [currentQ, showIntro, advanceQuestion]);
 
   const currentQuestion = currentQ >= 0 ? questions[currentQ] : null;
-  const exampleDuration = 3;
-  const progress = currentQuestion ? (timer / exampleDuration) * 100 : 0;
 
   return (
-    <div className="relative w-full h-full bg-gradient-to-br from-burgundy-700 via-navy-600 to-navy-800 overflow-hidden">
-      {/* Animated background shapes */}
-      <div className="absolute inset-0 overflow-hidden">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full opacity-20"
-            style={{
-              width: 100 + i * 40,
-              height: 100 + i * 40,
-              background: `linear-gradient(135deg, ${
-                ["#8B1A2B", "#aa2040", "#1a2744", "#364d7a", "#5f121d", "#5772ab"][i]
-              }, transparent)`,
-              left: `${10 + i * 15}%`,
-              top: `${20 + (i % 3) * 25}%`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              x: [0, 15, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 3 + i,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Live camera feed */}
+    <div className="relative w-full h-full overflow-hidden bg-black">
+      {/* Camera feed background */}
       {videoRef && (
         <video
           ref={videoRef}
@@ -95,126 +62,198 @@ export default function ExampleVideo({ onFinished, videoRef }: { onFinished: () 
         />
       )}
 
-      {/* Fallback silhouette when no camera */}
-      {!videoRef && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="w-32 h-32 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center">
-            <svg className="w-16 h-16 text-white/30" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-            </svg>
-          </div>
-        </div>
-      )}
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/40" />
 
-      {/* Header */}
+      {/* "EXEMPLE" badge top-left */}
       <motion.div
-        className="absolute top-6 left-0 right-0 text-center z-10"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
+        className="absolute top-5 left-4 z-30"
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
       >
-        <h2 className="text-sm font-bold tracking-[0.3em] uppercase text-white/60">
-          Fast & Curious
-        </h2>
+        <div className="flex items-center gap-2 bg-burgundy-500/80 backdrop-blur-sm rounded-full px-3 py-1.5">
+          <motion.div
+            className="w-2 h-2 rounded-full bg-white"
+            animate={{ opacity: [1, 0.3, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+          />
+          <span className="text-[11px] font-bold tracking-wider uppercase">Exemple</span>
+        </div>
       </motion.div>
 
-      {/* Intro screen */}
+      {/* Progress counter top-right */}
+      {currentQ >= 0 && (
+        <motion.div
+          className="absolute top-5 right-4 z-30"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        >
+          <span className="text-xs font-bold text-white/70 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5">
+            {currentQ + 1}/3
+          </span>
+        </motion.div>
+      )}
+
+      {/* Intro splash */}
       <AnimatePresence>
-        {currentQ === -1 && (
+        {showIntro && (
           <motion.div
             className="absolute inset-0 flex flex-col items-center justify-center z-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
+            transition={{ duration: 0.4 }}
           >
-            <motion.h1
-              className="text-4xl font-bold gradient-text mb-4"
-              animate={{ scale: [1, 1.05, 1] }}
+            <motion.div
+              className="text-6xl mb-4"
+              animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
               transition={{ duration: 1.5, repeat: Infinity }}
             >
-              EXEMPLE
-            </motion.h1>
-            <p className="text-white/60 text-sm">Regarde comment ça marche...</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Question overlay */}
-      <AnimatePresence mode="wait">
-        {currentQuestion && (
-          <motion.div
-            key={currentQuestion.id}
-            className="absolute inset-x-4 bottom-24 z-20"
-            initial={{ y: 100, opacity: 0, scale: 0.8 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -80, opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", damping: 20, stiffness: 300 }}
-          >
-            <motion.span
-              className="inline-block px-3 py-1 rounded-full text-xs font-semibold mb-3 bg-white/20 backdrop-blur-sm"
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
+              🎬
+            </motion.div>
+            <motion.h1
+              className="text-3xl font-black gradient-text mb-2"
+              initial={{ y: 20 }}
+              animate={{ y: 0 }}
             >
-              {currentQuestion.category}
-            </motion.span>
-
-            <div className={`bg-gradient-to-r ${currentQuestion.gradient} rounded-2xl p-5 backdrop-blur-lg shadow-2xl`}>
-              <div className="flex items-center justify-between gap-4">
-                <motion.div
-                  className={`flex-1 text-center p-3 rounded-xl font-bold text-lg ${
-                    showAnswer && exampleAnswers[currentQ] === "A"
-                      ? "bg-white text-gray-900 scale-110"
-                      : "bg-white/20"
-                  } transition-all duration-300`}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  {currentQuestion.optionA}
-                </motion.div>
-
-                <span className="text-2xl font-black text-white/40">OU</span>
-
-                <motion.div
-                  className={`flex-1 text-center p-3 rounded-xl font-bold text-lg ${
-                    showAnswer && exampleAnswers[currentQ] === "B"
-                      ? "bg-white text-gray-900 scale-110"
-                      : "bg-white/20"
-                  } transition-all duration-300`}
-                  whileHover={{ scale: 1.05 }}
-                >
-                  {currentQuestion.optionB}
-                </motion.div>
-              </div>
-
-              <div className="mt-4 h-1 bg-white/20 rounded-full overflow-hidden">
-                <motion.div
-                  className="h-full bg-white rounded-full"
-                  style={{ width: `${100 - progress}%` }}
-                  transition={{ duration: 0.1 }}
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-center mt-3 gap-1.5">
-              {questions.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1 rounded-full transition-all duration-300 ${
-                    i === currentQ
-                      ? "w-6 bg-white"
-                      : i < currentQ
-                      ? "w-3 bg-burgundy-400"
-                      : "w-3 bg-white/20"
-                  }`}
-                />
-              ))}
-            </div>
+              REGARDE !
+            </motion.h1>
+            <motion.p
+              className="text-white/60 text-sm"
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              Voilà comment ça se passe...
+            </motion.p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Watermark */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rotate-[-30deg] z-10 pointer-events-none">
-        <p className="text-6xl font-black text-white/5 tracking-widest">EXEMPLE</p>
+      {/* Question display - stacks at the bottom */}
+      <div className="absolute inset-x-0 bottom-0 z-20 p-4 pb-20">
+        {/* Already answered questions - faded and stacked above */}
+        <div className="space-y-2 mb-3">
+          <AnimatePresence>
+            {answeredQuestions.map((qIdx) => {
+              const q = questions[qIdx];
+              return (
+                <motion.div
+                  key={q.id}
+                  className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2.5"
+                  initial={{ opacity: 1, y: 0 }}
+                  animate={{ opacity: 0.4, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  layout
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{q.emoji}</span>
+                    <span className="text-xs text-white/60 line-through">{q.text}</span>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+
+        {/* Current question */}
+        <AnimatePresence mode="wait">
+          {currentQuestion && (
+            <motion.div
+              key={currentQuestion.id}
+              initial={{ y: 60, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -40, opacity: 0, scale: 0.95 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            >
+              {/* Category tag */}
+              <motion.div
+                className="mb-2"
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${currentQuestion.gradient} shadow-lg`}>
+                  {currentQuestion.category}
+                </span>
+              </motion.div>
+
+              {/* Question card */}
+              <div className="bg-black/50 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-2xl">
+                <div className="flex items-start gap-3">
+                  <motion.span
+                    className="text-2xl"
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                  >
+                    {currentQuestion.emoji}
+                  </motion.span>
+                  <motion.p
+                    className="text-lg font-bold text-white leading-snug"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.15 }}
+                  >
+                    {currentQuestion.text}
+                  </motion.p>
+                </div>
+
+                {/* Simulated voice activity */}
+                <motion.div
+                  className="flex items-center gap-2 mt-4"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2 }}
+                >
+                  <div className="flex items-center gap-0.5">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="w-1 bg-burgundy-400 rounded-full"
+                        animate={{ height: [3, 10 + Math.random() * 8, 3] }}
+                        transition={{
+                          duration: 0.3 + Math.random() * 0.2,
+                          repeat: Infinity,
+                          delay: i * 0.08,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-[10px] text-burgundy-300 font-semibold uppercase tracking-wider">
+                    Réponse en cours...
+                  </span>
+                </motion.div>
+
+                {/* Timer bar */}
+                <div className="mt-3 h-1 bg-white/10 rounded-full overflow-hidden">
+                  <motion.div
+                    className="h-full bg-gradient-to-r from-burgundy-400 to-white rounded-full"
+                    initial={{ width: "100%" }}
+                    animate={{ width: "0%" }}
+                    transition={{ duration: 4, ease: "linear" }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Progress dots at very bottom */}
+      <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
+        {[0, 1, 2].map((i) => (
+          <motion.div
+            key={i}
+            className={`h-1 rounded-full transition-all duration-500 ${
+              i === currentQ
+                ? "w-8 bg-burgundy-400"
+                : i < currentQ
+                ? "w-4 bg-white/60"
+                : "w-4 bg-white/20"
+            }`}
+            layout
+          />
+        ))}
       </div>
     </div>
   );

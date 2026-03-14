@@ -1,10 +1,11 @@
 export interface Question {
   id: number;
-  /** The two choices displayed side by side */
-  optionA: string;
-  optionB: string;
+  /** The question text displayed on screen */
+  text: string;
   /** Category tag shown above the question */
   category: string;
+  /** Emoji for visual flair */
+  emoji: string;
   /** Max duration in seconds (safety net - voice detection handles normal advance) */
   duration: number;
   /** Background gradient for visual variety */
@@ -14,95 +15,95 @@ export interface Question {
 export const questions: Question[] = [
   {
     id: 1,
-    optionA: "Aventure",
-    optionB: "Galère",
-    category: "Mobilité",
-    duration: 20,
+    text: "Présente-toi en 10 secondes chrono !",
+    category: "Ice Breaker",
+    emoji: "👋",
+    duration: 15,
     gradient: "from-burgundy-500 to-navy-500",
   },
   {
     id: 2,
-    optionA: "Toujours prête",
-    optionB: "Je déteste",
-    category: "Lifestyle",
-    duration: 20,
+    text: "Ton plus grand talent caché ?",
+    category: "Perso",
+    emoji: "✨",
+    duration: 15,
     gradient: "from-navy-500 to-burgundy-500",
   },
   {
     id: 3,
-    optionA: "Stress total",
-    optionB: "Excitation totale",
-    category: "Premier jour",
+    text: "Pourquoi toi et pas quelqu'un d'autre ?",
+    category: "Motivation",
+    emoji: "🔥",
     duration: 20,
     gradient: "from-burgundy-400 to-navy-400",
   },
   {
     id: 4,
-    optionA: "J'insiste",
-    optionB: "Je lâche l'affaire",
-    category: "Terrain",
-    duration: 20,
+    text: "Ta plus grande fierté ?",
+    category: "Perso",
+    emoji: "🏆",
+    duration: 15,
     gradient: "from-navy-400 to-burgundy-400",
   },
   {
     id: 5,
-    optionA: "Débriefing d'équipe",
-    optionB: "Moment solo",
-    category: "Décompression",
-    duration: 20,
+    text: "Un mot pour te décrire ?",
+    category: "Flash",
+    emoji: "⚡",
+    duration: 10,
     gradient: "from-burgundy-500 to-navy-400",
   },
   {
     id: 6,
-    optionA: "Speech bien rodé",
-    optionB: "Impro au feeling",
-    category: "Approche",
-    duration: 20,
+    text: "Qu'est-ce qui te fait vibrer ?",
+    category: "Passion",
+    emoji: "💥",
+    duration: 15,
     gradient: "from-navy-500 to-burgundy-400",
   },
   {
     id: 7,
-    optionA: "Motivation en berne",
-    optionB: "Encore plus déterminé",
-    category: "Résilience",
-    duration: 20,
+    text: "Ton pire défaut, version honnête ?",
+    category: "Honnêteté",
+    emoji: "😅",
+    duration: 15,
     gradient: "from-burgundy-400 to-navy-500",
   },
   {
     id: 8,
-    optionA: "Leader naturel",
-    optionB: "Bras droit de confiance",
-    category: "Rôle en équipe",
-    duration: 20,
+    text: "Si t'avais un super pouvoir ?",
+    category: "Fun",
+    emoji: "🦸",
+    duration: 15,
     gradient: "from-navy-400 to-burgundy-500",
   },
   {
     id: 9,
-    optionA: "Je profite",
-    optionB: "J'en remets une couche",
-    category: "Mentalité",
-    duration: 20,
+    text: "C'est quoi ton rêve de ouf ?",
+    category: "Ambition",
+    emoji: "🚀",
+    duration: 15,
     gradient: "from-burgundy-500 to-navy-500",
   },
   {
     id: 10,
-    optionA: "Esprit d'équipe",
-    optionB: "Impact pour l'asso",
-    category: "Motivation",
-    duration: 20,
+    text: "Un dernier mot pour convaincre ?",
+    category: "Closing",
+    emoji: "🎤",
+    duration: 15,
     gradient: "from-navy-500 to-burgundy-500",
   },
 ];
 
 /** Transition messages shown between questions */
 export const transitions = [
-  "C'est parti !",
-  "Question suivante...",
-  "On continue !",
-  "Allez, next !",
-  "Encore une...",
-  "On accélère !",
-  "Presque fini !",
-  "Dernière ligne droite !",
-  "La der des ders !",
+  "C'est parti ! 🔥",
+  "Suivante ! 💪",
+  "On continue ! 🎯",
+  "Allez, next ! ⚡",
+  "Encore une ! 🚀",
+  "On accélère ! 💨",
+  "T'assures ! 🔥",
+  "Presque fini ! 🏁",
+  "La der des ders ! 🎬",
 ];

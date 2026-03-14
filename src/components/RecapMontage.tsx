@@ -5,12 +5,12 @@ import { motion } from "framer-motion";
 import { questions } from "@/data/questions";
 
 interface RecapMontageProps {
-  answers: Record<number, "A" | "B">;
+  answeredIds: number[];
   videoBlob: Blob | null;
   onRestart: () => void;
 }
 
-export default function RecapMontage({ answers, videoBlob, onRestart }: RecapMontageProps) {
+export default function RecapMontage({ answeredIds, videoBlob, onRestart }: RecapMontageProps) {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -64,7 +64,7 @@ export default function RecapMontage({ answers, videoBlob, onRestart }: RecapMon
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
       >
-        <h1 className="text-xl font-bold gradient-text text-center">Ton récap 🎬</h1>
+        <h1 className="text-xl font-bold gradient-text text-center">Bravo, c&apos;est dans la boîte ! 🎬</h1>
       </motion.div>
 
       <div className="p-4 space-y-6">
@@ -86,32 +86,38 @@ export default function RecapMontage({ answers, videoBlob, onRestart }: RecapMon
           </motion.div>
         )}
 
-        {/* Answers recap */}
+        {/* Questions recap */}
         <motion.div
-          className="space-y-3"
+          className="space-y-2"
           initial={{ y: 30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
-          <h2 className="text-lg font-bold text-white/80 mb-3">Tes réponses</h2>
+          <h2 className="text-lg font-bold text-white/80 mb-3">
+            {answeredIds.length}/{questions.length} questions
+          </h2>
           {questions.map((q, i) => {
-            const answer = answers[q.id];
-            const chosen = answer === "A" ? q.optionA : q.optionB;
+            const wasAnswered = answeredIds.includes(q.id);
             return (
               <motion.div
                 key={q.id}
-                className={`bg-gradient-to-r ${q.gradient} rounded-xl p-3 flex items-center gap-3`}
+                className={`rounded-xl p-3 flex items-center gap-3 ${
+                  wasAnswered
+                    ? `bg-gradient-to-r ${q.gradient}`
+                    : "bg-white/5 opacity-40"
+                }`}
                 initial={{ x: -30, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                transition={{ delay: 0.5 + i * 0.08 }}
+                animate={{ x: 0, opacity: wasAnswered ? 1 : 0.4 }}
+                transition={{ delay: 0.5 + i * 0.06 }}
               >
-                <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center text-xs font-bold shrink-0">
-                  {i + 1}
-                </span>
+                <span className="text-lg shrink-0">{q.emoji}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-white/60">{q.category}</p>
-                  <p className="font-bold text-sm truncate">{chosen}</p>
+                  <p className="font-bold text-sm truncate">{q.text}</p>
                 </div>
+                {wasAnswered && (
+                  <span className="text-xs text-white/60">✓</span>
+                )}
               </motion.div>
             );
           })}
@@ -127,7 +133,7 @@ export default function RecapMontage({ answers, videoBlob, onRestart }: RecapMon
           <button
             onClick={handleDownload}
             disabled={!videoBlob || downloading}
-            className="w-full py-4 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 font-bold text-lg shadow-lg shadow-pink-500/25 active:scale-95 transition-transform disabled:opacity-50"
+            className="w-full py-4 rounded-xl bg-gradient-to-r from-burgundy-500 to-navy-500 font-bold text-lg shadow-lg shadow-burgundy-500/25 active:scale-95 transition-transform disabled:opacity-50"
           >
             {downloading ? "Téléchargement..." : "Télécharger ma vidéo 📥"}
           </button>
