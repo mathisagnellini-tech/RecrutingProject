@@ -27,16 +27,26 @@ export default function QuestionOverlay({
   const phaseRef = useRef(phase);
   phaseRef.current = phase;
   const prevIndexRef = useRef(questionIndex);
+  const transitioningRef = useRef(false);
 
   const question: Question | undefined = questions[questionIndex];
   const isLastQuestion = questionIndex >= questions.length - 1;
   const { isSpeaking } = useVoiceActivity(stream, questionIndex);
 
+  // Keep refs for callbacks to avoid stale closures
+  const questionRef = useRef(question);
+  questionRef.current = question;
+  const isLastRef = useRef(isLastQuestion);
+  isLastRef.current = isLastQuestion;
+  const onAnsweredRef = useRef(onAnswered);
+  onAnsweredRef.current = onAnswered;
+  const onAllDoneRef = useRef(onAllDone);
+  onAllDoneRef.current = onAllDone;
+
   // Reset timers only when questionIndex actually advances (NOT during transition)
   useEffect(() => {
     if (questionIndex !== prevIndexRef.current) {
       prevIndexRef.current = questionIndex;
-      // Don't reset if we're in transition — the timeout in advanceToNext handles it
       if (phaseRef.current !== "transition") {
         setPhase("display");
         setDisplayTimer(0);
@@ -64,26 +74,34 @@ export default function QuestionOverlay({
   }, [phase, question]);
 
   const advanceToNext = useCallback(() => {
-    if (phaseRef.current === "transition") return;
+    // Double guard with ref to prevent any race condition
+    if (transitioningRef.current || phaseRef.current === "transition") return;
+    transitioningRef.current = true;
     setPhase("transition");
 
     if (navigator.vibrate) {
       navigator.vibrate(50);
     }
 
-    const wasLastQuestion = isLastQuestion;
-    onAnswered(question.id);
+    // Capture values NOW before any re-render
+    const currentQuestion = questionRef.current;
+    const wasLast = isLastRef.current;
+
+    if (currentQuestion) {
+      onAnsweredRef.current(currentQuestion.id);
+    }
 
     setTimeout(() => {
+      transitioningRef.current = false;
       setTimer(0);
       setDisplayTimer(0);
-      if (wasLastQuestion) {
-        onAllDone();
+      if (wasLast) {
+        onAllDoneRef.current();
       } else {
         setPhase("display");
       }
     }, 1200);
-  }, [question, isLastQuestion, onAnswered, onAllDone]);
+  }, []); // No deps needed — everything is read from refs
 
   // Countdown phase: strict 12s timer (skip for last question - unlimited)
   useEffect(() => {
@@ -91,6 +109,7 @@ export default function QuestionOverlay({
 
     const interval = setInterval(() => {
       setTimer((t) => {
+        if (transitioningRef.current) return t; // Don't tick during transition
         const next = t + 0.1;
         if (next >= QUESTION_DURATION) {
           advanceToNext();

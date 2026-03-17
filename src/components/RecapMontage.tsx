@@ -26,11 +26,13 @@ export default function RecapMontage({
   const [downloading, setDownloading] = useState(false);
   const [currentSegment, setCurrentSegment] = useState(0);
   const [showingCard, setShowingCard] = useState(false);
-  const [flash, setFlash] = useState(false);
+  const [flashVisible, setFlashVisible] = useState(false);
   const [recapPhase, setRecapPhase] = useState<RecapPhase>("intro");
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const segmentRef = useRef(0);
+  const playingRef = useRef(false); // guards against double-advance
+  const showingCardRef = useRef(false);
 
   const answeredQuestions = useMemo(
     () => questions.filter((q) => answeredIds.includes(q.id)),
@@ -59,34 +61,52 @@ export default function RecapMontage({
   }, [videoBlob]);
 
   const triggerFlash = useCallback(() => {
-    setFlash(true);
-    setTimeout(() => setFlash(false), 150);
+    setFlashVisible(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setFlashVisible(false);
+      });
+    });
   }, []);
 
   const playSegment = useCallback(
     (segIdx: number) => {
       const video = videoRef.current;
       if (!video || segIdx >= segments.length) {
+        playingRef.current = false;
         setRecapPhase("ended");
         return;
       }
 
+      // Clear any pending card timer
+      if (cardTimerRef.current) {
+        clearTimeout(cardTimerRef.current);
+        cardTimerRef.current = null;
+      }
+
       segmentRef.current = segIdx;
+      playingRef.current = true;
+      showingCardRef.current = true;
       setCurrentSegment(segIdx);
       setRecapPhase("playing");
-
-      // Flash + show card
-      triggerFlash();
       setShowingCard(true);
+
+      triggerFlash();
       video.pause();
 
       cardTimerRef.current = setTimeout(() => {
+        showingCardRef.current = false;
+        setShowingCard(false);
         triggerFlash();
-        setTimeout(() => {
-          setShowingCard(false);
-          video.currentTime = segments[segIdx].answerStart;
-          video.play();
-        }, 100);
+
+        // Seek then play
+        video.currentTime = segments[segIdx].answerStart;
+        const playPromise = video.play();
+        if (playPromise) {
+          playPromise.catch(() => {
+            // Autoplay blocked — user interaction needed, ignore
+          });
+        }
       }, CARD_DURATION);
     },
     [segments, triggerFlash]
@@ -99,7 +119,7 @@ export default function RecapMontage({
     return () => clearTimeout(t);
   }, [recapPhase, videoUrl, playSegment]);
 
-  // On video loaded
+  // On video loaded, keep paused
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !videoUrl) return;
@@ -119,27 +139,31 @@ export default function RecapMontage({
     if (!video) return;
 
     const onTimeUpdate = () => {
-      if (showingCard || recapPhase !== "playing") return;
-      const seg = segments[segmentRef.current];
+      // Use refs to avoid stale closures
+      if (showingCardRef.current || !playingRef.current) return;
+
+      const idx = segmentRef.current;
+      const seg = segments[idx];
       if (!seg) return;
 
       if (
         seg.answerEnd !== Infinity &&
-        video.currentTime >= seg.answerEnd - 0.1
+        video.currentTime >= seg.answerEnd - 0.15
       ) {
-        const nextIdx = segmentRef.current + 1;
+        const nextIdx = idx + 1;
         if (nextIdx < segments.length) {
           playSegment(nextIdx);
         } else {
           video.pause();
+          playingRef.current = false;
           triggerFlash();
           setTimeout(() => setRecapPhase("ended"), 200);
         }
       }
     };
 
-    // Also handle natural end of video
     const onEnded = () => {
+      playingRef.current = false;
       triggerFlash();
       setTimeout(() => setRecapPhase("ended"), 200);
     };
@@ -150,8 +174,9 @@ export default function RecapMontage({
       video.removeEventListener("timeupdate", onTimeUpdate);
       video.removeEventListener("ended", onEnded);
     };
-  }, [showingCard, recapPhase, segments, playSegment, triggerFlash]);
+  }, [segments, playSegment, triggerFlash]);
 
+  // Cleanup timers on unmount
   useEffect(() => {
     return () => {
       if (cardTimerRef.current) clearTimeout(cardTimerRef.current);
@@ -194,57 +219,48 @@ export default function RecapMontage({
   }, [videoBlob, handleDownload]);
 
   const handleReplay = useCallback(() => {
+    if (cardTimerRef.current) {
+      clearTimeout(cardTimerRef.current);
+      cardTimerRef.current = null;
+    }
+    segmentRef.current = 0;
+    playingRef.current = false;
+    showingCardRef.current = false;
     setCurrentSegment(0);
-    setRecapPhase("intro");
     setShowingCard(false);
+    setRecapPhase("intro");
   }, []);
 
   const currentQuestion = segments[currentSegment]?.question;
 
   return (
     <div className="relative w-full h-full bg-black overflow-hidden">
-      {/* ===== FULL-SCREEN VIDEO (always mounted, hidden when needed) ===== */}
+      {/* ===== FULL-SCREEN VIDEO ===== */}
       {videoUrl && (
         <video
           ref={videoRef}
           src={videoUrl}
           playsInline
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${
-            showingCard || recapPhase === "ended" || recapPhase === "intro"
-              ? "opacity-0"
-              : "opacity-100"
-          }`}
+          className="absolute inset-0 w-full h-full object-cover"
           style={{
             transform: "scaleX(-1)",
+            opacity:
+              showingCard || recapPhase === "ended" || recapPhase === "intro"
+                ? 0
+                : 1,
+            transition: "opacity 0.2s ease",
           }}
         />
       )}
 
-      {/* Ken Burns zoom on video container */}
-      {recapPhase === "playing" && !showingCard && (
-        <motion.div
-          className="absolute inset-0 pointer-events-none"
-          key={`zoom-${currentSegment}`}
-          initial={{ scale: 1.0 }}
-          animate={{ scale: 1.08 }}
-          transition={{ duration: 14, ease: "linear" }}
-        >
-          <div className="absolute inset-0 bg-transparent" />
-        </motion.div>
-      )}
-
-      {/* ===== FLASH TRANSITION ===== */}
-      <AnimatePresence>
-        {flash && (
-          <motion.div
-            className="absolute inset-0 z-[100] bg-white"
-            initial={{ opacity: 0.9 }}
-            animate={{ opacity: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
-          />
-        )}
-      </AnimatePresence>
+      {/* ===== FLASH (CSS only, no AnimatePresence) ===== */}
+      <div
+        className="absolute inset-0 z-[100] bg-white pointer-events-none"
+        style={{
+          opacity: flashVisible ? 0.85 : 0,
+          transition: flashVisible ? "none" : "opacity 0.15s ease-out",
+        }}
+      />
 
       {/* ===== INTRO ===== */}
       <AnimatePresence>
