@@ -253,7 +253,7 @@ export default function RecapMontage({
         />
       )}
 
-      {/* ===== FLASH (CSS only, no AnimatePresence) ===== */}
+      {/* ===== FLASH (CSS only) ===== */}
       <div
         className="absolute inset-0 z-[100] bg-white pointer-events-none"
         style={{
@@ -262,66 +262,54 @@ export default function RecapMontage({
         }}
       />
 
-      {/* ===== INTRO ===== */}
+      {/* ===== INTRO — brutalist ===== */}
       <AnimatePresence>
         {recapPhase === "intro" && (
           <motion.div
-            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-navy-700 via-burgundy-800/60 to-navy-900"
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
             transition={{ duration: 0.3 }}
           >
             <motion.div
-              className="text-6xl"
-              initial={{ scale: 0, rotate: -20 }}
-              animate={{ scale: 1, rotate: 0 }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
               transition={{ type: "spring", damping: 10, stiffness: 200 }}
             >
-              🎬
+              <span className="brutal-tag brutal-tag-red text-lg px-6 py-3">
+                Ton récap
+              </span>
             </motion.div>
-            <motion.p
-              className="text-2xl font-black gradient-text mt-3"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              Ton récap
-            </motion.p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ===== QUESTION CARD (full screen, punchy) ===== */}
+      {/* ===== QUESTION CARD (full screen, brutalist) ===== */}
       <AnimatePresence mode="wait">
         {showingCard && currentQuestion && (
           <motion.div
             key={`card-${currentQuestion.id}`}
-            className="absolute inset-0 z-40 flex flex-col items-center justify-center"
+            className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black"
             initial={{ opacity: 0, scale: 1.2 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
-            <div
-              className={`absolute inset-0 bg-gradient-to-br ${currentQuestion.gradient}`}
-            />
-
             {/* Big question number */}
             <motion.div
-              className="relative z-10"
               initial={{ scale: 3, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.15 }}
+              animate={{ scale: 1, opacity: 0.1 }}
               transition={{ duration: 0.4 }}
             >
-              <span className="text-[120px] font-black text-white leading-none">
+              <span className="text-[150px] font-black text-white leading-none">
                 {currentSegment + 1}
               </span>
             </motion.div>
 
-            {/* Category pill */}
+            {/* Category pill — brutalist */}
             <motion.span
-              className="relative z-10 -mt-16 inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-white/20 backdrop-blur-sm mb-4"
+              className="-mt-16 brutal-tag brutal-tag-red mb-4"
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
@@ -331,7 +319,7 @@ export default function RecapMontage({
 
             {/* Question text */}
             <motion.div
-              className="relative z-10 mx-6 max-w-sm w-full"
+              className="mx-6 max-w-sm w-full"
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{
@@ -349,7 +337,7 @@ export default function RecapMontage({
                 >
                   {currentQuestion.emoji}
                 </motion.span>
-                <p className="text-2xl font-black text-white leading-tight pt-1 drop-shadow-lg">
+                <p className="text-2xl font-black text-white leading-tight pt-1 uppercase">
                   {currentQuestion.text}
                 </p>
               </div>
@@ -361,15 +349,15 @@ export default function RecapMontage({
       {/* ===== PLAYING OVERLAY (progress + question reminder) ===== */}
       {recapPhase === "playing" && !showingCard && (
         <>
-          {/* Progress segments at top */}
+          {/* Progress segments at top — sharp */}
           <div className="absolute top-0 left-0 right-0 z-30 px-2 pt-2">
             <div className="flex gap-1">
               {answeredQuestions.map((_, i) => (
                 <div
                   key={i}
-                  className={`h-[3px] flex-1 rounded-full transition-all duration-300 ${
+                  className={`h-1 flex-1 transition-all duration-300 ${
                     i < currentSegment
-                      ? "bg-burgundy-400"
+                      ? "bg-brutal-red"
                       : i === currentSegment
                       ? "bg-white"
                       : "bg-white/20"
@@ -379,7 +367,7 @@ export default function RecapMontage({
             </div>
           </div>
 
-          {/* Question at bottom with gradient fade */}
+          {/* Question at bottom */}
           {currentQuestion && (
             <motion.div
               className="absolute bottom-0 left-0 right-0 z-30 pointer-events-none"
@@ -387,18 +375,18 @@ export default function RecapMontage({
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <div className="bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-16 pb-5 px-4">
+              <div className="bg-gradient-to-t from-black/90 via-black/50 to-transparent pt-16 pb-5 px-4">
                 <div className="flex items-center gap-2.5">
                   <span className="text-lg">{currentQuestion.emoji}</span>
-                  <p className="text-sm font-bold text-white leading-snug">
+                  <p className="text-sm font-black text-white leading-snug uppercase">
                     {currentQuestion.text}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 mt-1.5 ml-8">
-                  <span className="text-[10px] font-semibold text-burgundy-300 uppercase tracking-wider">
+                  <span className="brutal-tag brutal-tag-red text-[8px] py-0.5 px-1.5" style={{ borderWidth: '1px' }}>
                     {currentQuestion.category}
                   </span>
-                  <span className="text-[10px] text-white/30">
+                  <span className="text-[10px] text-white/30 font-black">
                     {currentSegment + 1}/{answeredQuestions.length}
                   </span>
                 </div>
@@ -408,26 +396,24 @@ export default function RecapMontage({
         </>
       )}
 
-      {/* ===== END CARD ===== */}
+      {/* ===== END CARD — brutalist ===== */}
       <AnimatePresence>
         {recapPhase === "ended" && (
           <motion.div
-            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-navy-700 via-burgundy-800/50 to-navy-900"
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4 }}
           >
-            {/* Decorative bg */}
+            {/* Decorative geometric shapes */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <motion.div
-                className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-burgundy-500/25 blur-3xl"
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 3, repeat: Infinity }}
+              <div
+                className="absolute top-[-40px] right-[-40px] w-[200px] h-[200px] bg-brutal-yellow border-[4px] border-black"
+                style={{ transform: "rotate(15deg)" }}
               />
-              <motion.div
-                className="absolute -bottom-20 -left-20 w-72 h-72 rounded-full bg-navy-400/25 blur-3xl"
-                animate={{ scale: [1.2, 1, 1.2] }}
-                transition={{ duration: 3, repeat: Infinity }}
+              <div
+                className="absolute bottom-[-30px] left-[-30px] w-[180px] h-[180px] bg-brutal-red border-[4px] border-black"
+                style={{ transform: "rotate(-10deg)" }}
               />
             </div>
 
@@ -437,41 +423,30 @@ export default function RecapMontage({
               animate={{ y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <motion.div
-                className="text-6xl mb-4"
-                initial={{ scale: 0, rotate: -20 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{
-                  type: "spring",
-                  damping: 10,
-                  stiffness: 200,
-                  delay: 0.1,
-                }}
-              >
-                🎬
-              </motion.div>
-
               <motion.h1
-                className="text-3xl font-black"
+                className="text-4xl font-black text-black uppercase leading-none"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
               >
-                <span className="gradient-text">
-                  C&apos;est dans la boîte !
+                C&apos;est dans
+                <br />
+                la{" "}
+                <span className="bg-brutal-red text-white px-2 inline-block">
+                  boîte !
                 </span>
               </motion.h1>
 
               <motion.p
-                className="text-white/40 text-sm mt-2 font-medium"
+                className="text-black/40 text-xs mt-3 font-black uppercase tracking-wider"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                {answeredIds.length} questions — Fast & Curious
+                {answeredIds.length} questions — Fast &amp; Curious
               </motion.p>
 
-              {/* Actions */}
+              {/* Actions — brutalist buttons */}
               <motion.div
                 className="mt-8 space-y-3 w-full max-w-xs mx-auto"
                 initial={{ opacity: 0, y: 20 }}
@@ -481,29 +456,29 @@ export default function RecapMontage({
                 <button
                   onClick={handleShare}
                   disabled={!videoBlob}
-                  className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-burgundy-500 via-burgundy-400 to-navy-500 font-bold text-sm shadow-lg shadow-burgundy-500/30 active:scale-95 transition-transform disabled:opacity-50"
+                  className="w-full py-3.5 brutal-btn brutal-btn-primary text-sm disabled:opacity-50"
                 >
-                  Partager la vidéo
+                  Partager la vidéo →
                 </button>
 
                 <button
                   onClick={handleDownload}
                   disabled={!videoBlob || downloading}
-                  className="w-full py-3 rounded-2xl bg-white/10 border border-white/10 font-semibold text-sm text-white/80 active:scale-95 transition-transform disabled:opacity-50"
+                  className="w-full py-3 brutal-btn brutal-btn-secondary text-sm disabled:opacity-50"
                 >
-                  {downloading ? "Téléchargement..." : "Télécharger 📥"}
+                  {downloading ? "Téléchargement..." : "Télécharger"}
                 </button>
 
                 <div className="flex gap-2 pt-1">
                   <button
                     onClick={handleReplay}
-                    className="flex-1 py-2.5 rounded-xl bg-white/5 text-xs text-white/40 font-medium active:scale-95 transition-transform"
+                    className="flex-1 py-2.5 brutal-btn brutal-btn-secondary text-xs"
                   >
                     Revoir
                   </button>
                   <button
                     onClick={onRestart}
-                    className="flex-1 py-2.5 rounded-xl bg-white/5 text-xs text-white/40 font-medium active:scale-95 transition-transform"
+                    className="flex-1 py-2.5 brutal-btn brutal-btn-secondary text-xs"
                   >
                     Recommencer
                   </button>

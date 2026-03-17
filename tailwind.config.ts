@@ -33,6 +33,13 @@ const config: Config = {
           800: "#490e16",
           900: "#330a0f",
         },
+        brutal: {
+          red: "#FF0000",
+          yellow: "#FFFF00",
+          blue: "#0000FF",
+          black: "#000000",
+          white: "#FFFFFF",
+        },
       },
     },
   },

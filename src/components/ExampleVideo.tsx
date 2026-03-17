@@ -63,32 +63,36 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
       )}
 
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/50" />
 
-      {/* "EXEMPLE" badge top-left */}
+      {/* "EXEMPLE" badge top-left — brutalist */}
       <motion.div
         className="absolute top-5 left-4 z-30"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
       >
-        <div className="flex items-center gap-2 bg-burgundy-500/80 backdrop-blur-sm rounded-full px-3 py-1.5">
-          <motion.div
-            className="w-2 h-2 rounded-full bg-white"
-            animate={{ opacity: [1, 0.3, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
-          />
-          <span className="text-[11px] font-bold tracking-wider uppercase">Exemple</span>
+        <div className="flex items-center gap-2">
+          <span className="brutal-tag brutal-tag-red">
+            <span className="flex items-center gap-1.5">
+              <motion.div
+                className="w-2 h-2 bg-white"
+                animate={{ opacity: [1, 0.3, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+              />
+              Exemple
+            </span>
+          </span>
         </div>
       </motion.div>
 
       {/* Progress counter top-right */}
       {currentQ >= 0 && (
         <motion.div
-          className="absolute top-5 right-4 z-30"
+          className="absolute top-5 right-14 z-30"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <span className="text-xs font-bold text-white/70 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5">
+          <span className="brutal-tag brutal-tag-white">
             {currentQ + 1}/3
           </span>
         </motion.div>
@@ -104,22 +108,15 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
             exit={{ opacity: 0, scale: 0.8 }}
             transition={{ duration: 0.4 }}
           >
-            <motion.div
-              className="text-6xl mb-4"
-              animate={{ scale: [1, 1.2, 1], rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-            >
-              🎬
-            </motion.div>
             <motion.h1
-              className="text-3xl font-black gradient-text mb-2"
+              className="text-5xl font-black text-white mb-2 uppercase"
               initial={{ y: 20 }}
               animate={{ y: 0 }}
             >
-              REGARDE !
+              Regarde !
             </motion.h1>
             <motion.p
-              className="text-white/60 text-sm"
+              className="text-white/60 text-sm font-bold uppercase tracking-wider"
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -140,7 +137,7 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
               return (
                 <motion.div
                   key={q.id}
-                  className="bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2.5"
+                  className="bg-black/60 border-2 border-white/20 px-4 py-2.5"
                   initial={{ opacity: 1, y: 0 }}
                   animate={{ opacity: 0.4, y: 0 }}
                   transition={{ duration: 0.3 }}
@@ -161,9 +158,9 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
           {currentQuestion && (
             <motion.div
               key={currentQuestion.id}
-              initial={{ y: 60, opacity: 0, scale: 0.9 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: -40, opacity: 0, scale: 0.95 }}
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -40, opacity: 0 }}
               transition={{ type: "spring", damping: 20, stiffness: 300 }}
             >
               {/* Category tag */}
@@ -173,13 +170,13 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.1 }}
               >
-                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r ${currentQuestion.gradient} shadow-lg`}>
+                <span className="brutal-tag brutal-tag-red">
                   {currentQuestion.category}
                 </span>
               </motion.div>
 
-              {/* Question card */}
-              <div className="bg-black/50 backdrop-blur-md rounded-2xl p-5 border border-white/10 shadow-2xl">
+              {/* Question card — brutalist */}
+              <div className="bg-black/80 border-3 border-white p-5" style={{ borderWidth: '3px' }}>
                 <div className="flex items-start gap-3">
                   <motion.span
                     className="text-2xl"
@@ -189,7 +186,7 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
                     {currentQuestion.emoji}
                   </motion.span>
                   <motion.p
-                    className="text-lg font-bold text-white leading-snug"
+                    className="text-lg font-black text-white leading-snug uppercase"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.15 }}
@@ -209,7 +206,7 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
                     {[1, 2, 3, 4, 5].map((i) => (
                       <motion.div
                         key={i}
-                        className="w-1 bg-burgundy-400 rounded-full"
+                        className="w-1 bg-brutal-red rounded-none"
                         animate={{ height: [3, 10 + Math.random() * 8, 3] }}
                         transition={{
                           duration: 0.3 + Math.random() * 0.2,
@@ -219,15 +216,15 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
                       />
                     ))}
                   </div>
-                  <span className="text-[10px] text-burgundy-300 font-semibold uppercase tracking-wider">
+                  <span className="text-[10px] text-brutal-red font-black uppercase tracking-wider">
                     Réponse en cours...
                   </span>
                 </motion.div>
 
-                {/* Timer bar */}
-                <div className="mt-3 h-1 bg-white/10 rounded-full overflow-hidden">
+                {/* Timer bar — sharp */}
+                <div className="mt-3 h-1.5 bg-white/10 overflow-hidden">
                   <motion.div
-                    className="h-full bg-gradient-to-r from-burgundy-400 to-white rounded-full"
+                    className="h-full bg-brutal-red"
                     initial={{ width: "100%" }}
                     animate={{ width: "0%" }}
                     transition={{ duration: 4, ease: "linear" }}
@@ -239,17 +236,17 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
         </AnimatePresence>
       </div>
 
-      {/* Progress dots at very bottom */}
-      <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2">
+      {/* Progress bars at very bottom — sharp */}
+      <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2 px-4">
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className={`h-1 rounded-full transition-all duration-500 ${
+            className={`h-1 transition-all duration-500 ${
               i === currentQ
-                ? "w-8 bg-burgundy-400"
+                ? "w-10 bg-brutal-red"
                 : i < currentQ
-                ? "w-4 bg-white/60"
-                : "w-4 bg-white/20"
+                ? "w-6 bg-white"
+                : "w-6 bg-white/20"
             }`}
             layout
           />

@@ -112,96 +112,115 @@ export default function Home() {
           {phase === "landing" && (
             <motion.div
               key="landing"
-              className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-navy-700 via-burgundy-800/40 to-navy-900 p-8"
+              className="absolute inset-0 flex flex-col items-center justify-center bg-white p-8"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              {/* Decorative circles */}
+              {/* Decorative geometric shapes — brutalist style */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-burgundy-500/20 blur-3xl" />
-                <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-navy-400/20 blur-3xl" />
-                <div className="absolute top-1/3 left-1/2 -translate-x-1/2 w-48 h-48 rounded-full bg-burgundy-400/15 blur-2xl" />
+                {/* Big yellow rectangle, tilted */}
+                <div
+                  className="absolute top-1/4 right-[-40px] w-[280px] h-[280px] bg-brutal-yellow border-[4px] border-black"
+                  style={{ transform: "rotate(12deg)" }}
+                />
+                {/* Red rectangle behind yellow */}
+                <div
+                  className="absolute top-[22%] right-[-60px] w-[280px] h-[280px] bg-brutal-red border-[4px] border-black"
+                  style={{ transform: "rotate(20deg)" }}
+                />
+                {/* Blue rectangle behind red */}
+                <div
+                  className="absolute top-[26%] right-[-50px] w-[260px] h-[260px] bg-brutal-blue border-[4px] border-black"
+                  style={{ transform: "rotate(28deg)" }}
+                />
+                {/* Asterisk on the yellow */}
+                <div
+                  className="absolute top-[38%] right-[60px] text-5xl font-black text-black"
+                  style={{ transform: "rotate(12deg)" }}
+                >
+                  *
+                </div>
               </div>
 
               <motion.div
-                className="relative z-10 text-center"
+                className="relative z-10 text-left w-full"
                 initial={{ y: 30 }}
                 animate={{ y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <motion.div
-                  className="text-6xl mb-6"
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
-                  🎬
-                </motion.div>
+                {/* Tag */}
+                <div className="mb-6">
+                  <span className="brutal-tag brutal-tag-yellow">
+                    Video Interview
+                  </span>
+                </div>
 
-                <h1 className="text-4xl font-black mb-2">
-                  <span className="gradient-text">Fast & Curious</span>
-                </h1>
-                <p className="text-sm text-white/50 font-medium tracking-wider uppercase mb-8">
-                  Édition Recrutement
-                </p>
-
-                <p className="text-white/70 text-base leading-relaxed mb-10 max-w-xs">
-                  <strong className="text-white">10 questions flash</strong> face caméra.
+                {/* Main title — huge, black, brutalist */}
+                <h1 className="text-[52px] leading-[0.95] font-black text-black mb-4 tracking-tight">
+                  FAST
                   <br />
+                  &amp;{" "}
+                  <span className="bg-brutal-red text-white px-2 inline-block">
+                    CURIOUS
+                  </span>
+                </h1>
+
+                <p className="text-black/60 text-sm leading-relaxed mb-8 max-w-[240px]">
+                  10 questions flash face caméra.
                   Réponds à voix haute, montre ta personnalité !
                 </p>
 
-                <div className="space-y-3">
+                <div className="flex gap-3">
                   <motion.button
                     onClick={handleStartExample}
-                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-burgundy-500 via-burgundy-400 to-navy-500 font-bold text-lg shadow-lg shadow-burgundy-500/30"
-                    whileHover={{ scale: 1.02 }}
+                    className="brutal-btn brutal-btn-primary py-3 px-6 text-sm"
                     whileTap={{ scale: 0.97 }}
                   >
-                    C&apos;est parti !
+                    C&apos;est parti !&ensp;→
                   </motion.button>
 
                   <motion.button
                     onClick={handleGoDirectly}
-                    className="w-full py-3 rounded-2xl bg-white/5 border border-white/10 font-medium text-sm text-white/60"
+                    className="brutal-btn brutal-btn-secondary py-3 px-5 text-xs"
                     whileTap={{ scale: 0.97 }}
                   >
-                    Je connais, go direct →
+                    Go direct
                   </motion.button>
                 </div>
               </motion.div>
 
-              {/* Steps preview */}
+              {/* Steps preview — bottom */}
               <motion.div
-                className="absolute bottom-8 left-0 right-0 px-8"
+                className="absolute bottom-6 left-0 right-0 px-8"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <div className="flex justify-between text-center text-xs text-white/30">
+                <div className="flex justify-between text-center text-[10px] font-bold uppercase text-black/40 tracking-wider">
                   <div>
-                    <div className="w-8 h-8 rounded-full bg-burgundy-500/30 flex items-center justify-center mx-auto mb-1">
-                      📺
+                    <div className="w-8 h-8 border-2 border-black bg-brutal-yellow flex items-center justify-center mx-auto mb-1 text-black text-sm font-black">
+                      1
                     </div>
                     Exemple
                   </div>
                   <div className="flex-1 flex items-center px-2">
-                    <div className="h-px bg-white/10 w-full" />
+                    <div className="h-[2px] bg-black/20 w-full" />
                   </div>
                   <div>
-                    <div className="w-8 h-8 rounded-full bg-navy-400/30 flex items-center justify-center mx-auto mb-1">
-                      🎥
+                    <div className="w-8 h-8 border-2 border-black bg-white flex items-center justify-center mx-auto mb-1 text-black text-sm font-black">
+                      2
                     </div>
                     Caméra
                   </div>
                   <div className="flex-1 flex items-center px-2">
-                    <div className="h-px bg-white/10 w-full" />
+                    <div className="h-[2px] bg-black/20 w-full" />
                   </div>
                   <div>
-                    <div className="w-8 h-8 rounded-full bg-burgundy-500/30 flex items-center justify-center mx-auto mb-1">
-                      🎤
+                    <div className="w-8 h-8 border-2 border-black bg-brutal-red flex items-center justify-center mx-auto mb-1 text-white text-sm font-black">
+                      3
                     </div>
-                    Action !
+                    Action
                   </div>
                 </div>
               </motion.div>
@@ -220,7 +239,7 @@ export default function Home() {
               <ExampleVideo onFinished={handleExampleDone} videoRef={videoRef} />
 
               <motion.button
-                className="absolute top-5 right-4 z-30 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-xs font-bold text-white/70 active:bg-white/20 transition-colors"
+                className="absolute top-5 right-4 z-30 brutal-btn brutal-btn-dark py-2 px-4 text-[10px]"
                 onClick={handleExampleDone}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

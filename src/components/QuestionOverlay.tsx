@@ -137,13 +137,13 @@ export default function QuestionOverlay({
         <div className="absolute top-4 left-4 right-4 pointer-events-auto z-50">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-1">
+              <div className="flex items-center gap-1.5 brutal-tag brutal-tag-red">
                 <motion.div
-                  className="w-2 h-2 rounded-full bg-red-500"
+                  className="w-2 h-2 bg-white"
                   animate={{ opacity: [1, 0.3, 1] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
                 />
-                <span className="text-[10px] font-bold tracking-wider uppercase text-white/90">
+                <span className="text-[10px] font-black tracking-wider uppercase">
                   REC
                 </span>
               </div>
@@ -152,7 +152,7 @@ export default function QuestionOverlay({
                   {[1, 2, 3].map((i) => (
                     <motion.div
                       key={i}
-                      className="w-0.5 bg-burgundy-400 rounded-full"
+                      className="w-0.5 bg-brutal-red"
                       animate={{ height: [4, 12, 4] }}
                       transition={{
                         duration: 0.4,
@@ -166,30 +166,31 @@ export default function QuestionOverlay({
             </div>
             <div className="flex items-center gap-2">
               <span
-                className={`text-xs font-black tabular-nums bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1 ${
+                className={`text-xs font-black tabular-nums brutal-tag ${
                   isDisplayPhase
-                    ? "text-white/60"
+                    ? "brutal-tag-white"
                     : remainingSeconds <= 3
-                    ? "text-red-400"
-                    : "text-white/80"
+                    ? "brutal-tag-red"
+                    : "brutal-tag-white"
                 }`}
               >
-                {isDisplayPhase ? "Lis..." : isLastQuestion ? "∞" : `${remainingSeconds}s`}
+                {isDisplayPhase ? "LIS..." : isLastQuestion ? "∞" : `${remainingSeconds}S`}
               </span>
-              <span className="text-xs font-bold text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-2.5 py-1">
+              <span className="text-xs font-black brutal-tag brutal-tag-yellow">
                 {questionIndex + 1}/{questions.length}
               </span>
             </div>
           </div>
+          {/* Progress bars — sharp */}
           <div className="flex gap-1 mt-2">
             {questions.map((_, i) => (
               <div
                 key={i}
-                className={`h-0.5 flex-1 rounded-full transition-all duration-500 ${
+                className={`h-1 flex-1 transition-all duration-500 ${
                   i < questionIndex
-                    ? "bg-burgundy-400"
+                    ? "bg-brutal-red"
                     : i === questionIndex
-                    ? "bg-white/80"
+                    ? "bg-white"
                     : "bg-white/20"
                 }`}
               />
@@ -198,17 +199,17 @@ export default function QuestionOverlay({
         </div>
       )}
 
-      {/* Camera frame corners */}
+      {/* Camera frame corners — thick, sharp */}
       {isCountdown && (
         <div className="absolute inset-6 pointer-events-none">
-          <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-white/40 rounded-tl-lg" />
-          <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-white/40 rounded-tr-lg" />
-          <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-white/40 rounded-bl-lg" />
-          <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-white/40 rounded-br-lg" />
+          <div className="absolute top-0 left-0 w-8 h-8 border-t-3 border-l-3 border-white" style={{ borderTopWidth: '3px', borderLeftWidth: '3px' }} />
+          <div className="absolute top-0 right-0 w-8 h-8 border-t-3 border-r-3 border-white" style={{ borderTopWidth: '3px', borderRightWidth: '3px' }} />
+          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-3 border-l-3 border-white" style={{ borderBottomWidth: '3px', borderLeftWidth: '3px' }} />
+          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-3 border-r-3 border-white" style={{ borderBottomWidth: '3px', borderRightWidth: '3px' }} />
         </div>
       )}
 
-      {/* ===== DISPLAY PHASE: centered question with blur ===== */}
+      {/* ===== DISPLAY PHASE: centered question with dark bg ===== */}
       <AnimatePresence>
         {isDisplayPhase && (
           <motion.div
@@ -218,15 +219,15 @@ export default function QuestionOverlay({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            {/* Blur backdrop */}
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-md" />
+            {/* Dark backdrop — no blur, raw */}
+            <div className="absolute inset-0 bg-black/70" />
 
-            {/* Question card - centered */}
+            {/* Question card - centered, brutalist */}
             <motion.div
               className="relative z-10 mx-6 max-w-sm w-full"
-              initial={{ y: 40, opacity: 0, scale: 0.85 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
-              exit={{ y: -20, opacity: 0, scale: 0.95 }}
+              initial={{ y: 40, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
               transition={{ type: "spring", damping: 20, stiffness: 250 }}
             >
               <motion.div
@@ -235,12 +236,12 @@ export default function QuestionOverlay({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
               >
-                <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-bold bg-gradient-to-r ${question.gradient} shadow-lg`}>
+                <span className="brutal-tag brutal-tag-red text-xs">
                   {question.category}
                 </span>
               </motion.div>
 
-              <div className={`rounded-2xl p-6 bg-gradient-to-br ${question.gradient} shadow-2xl border border-white/20`}>
+              <div className="bg-black border-3 border-white p-6" style={{ borderWidth: '3px' }}>
                 <div className="flex items-start gap-4">
                   <motion.span
                     className="text-4xl shrink-0"
@@ -249,19 +250,19 @@ export default function QuestionOverlay({
                   >
                     {question.emoji}
                   </motion.span>
-                  <p className="text-xl font-black text-white leading-snug pt-1">
+                  <p className="text-xl font-black text-white leading-snug pt-1 uppercase">
                     {question.text}
                   </p>
                 </div>
 
-                {/* Reading progress bar */}
-                <div className="mt-5 h-1 bg-white/15 rounded-full overflow-hidden">
+                {/* Reading progress bar — sharp red */}
+                <div className="mt-5 h-1.5 bg-white/15 overflow-hidden">
                   <motion.div
-                    className="h-full rounded-full bg-white/50"
+                    className="h-full bg-brutal-red"
                     style={{ width: `${(displayTimer / QUESTION_DISPLAY_DELAY) * 100}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-white/40 mt-2 text-center font-medium uppercase tracking-wider">
+                <p className="text-[10px] text-white/40 mt-2 text-center font-black uppercase tracking-wider">
                   Prépare ta réponse...
                 </p>
               </div>
@@ -274,7 +275,7 @@ export default function QuestionOverlay({
       <AnimatePresence>
         {isTransition && (
           <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-black/70 backdrop-blur-md z-40 pointer-events-none px-8"
+            className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-40 pointer-events-none px-8"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -282,19 +283,13 @@ export default function QuestionOverlay({
             {isLastQuestion ? (
               <motion.div
                 className="text-center"
-                initial={{ scale: 0, rotate: -10 }}
-                animate={{ scale: 1, rotate: 0 }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
                 transition={{ type: "spring", damping: 12 }}
               >
-                <motion.div
-                  className="text-5xl mb-4"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 0.8, repeat: 1 }}
-                >
-                  🎬
-                </motion.div>
-                <p className="text-3xl font-black gradient-text">
-                  Voici le récap !
+                <p className="text-4xl font-black text-white uppercase">
+                  Voici le{" "}
+                  <span className="bg-brutal-red px-2">récap !</span>
                 </p>
               </motion.div>
             ) : (
@@ -311,7 +306,7 @@ export default function QuestionOverlay({
                 >
                   {question.emoji}
                 </motion.span>
-                <p className="text-lg font-bold text-white/60 mt-2">
+                <p className="text-lg font-black text-white/60 mt-2 uppercase">
                   ✓ {question.text}
                 </p>
               </motion.div>
@@ -326,14 +321,14 @@ export default function QuestionOverlay({
           <AnimatePresence mode="wait">
             <motion.div
               key={`countdown-${question.id}`}
-              initial={{ y: 60, opacity: 0, scale: 0.9 }}
-              animate={{ y: 0, opacity: 1, scale: 1 }}
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
               transition={{ type: "spring", damping: 22, stiffness: 280 }}
             >
-              <div className="bg-black/50 backdrop-blur-md rounded-2xl p-4 shadow-2xl shadow-black/30 border border-white/10">
+              <div className="bg-black/80 border-3 border-white p-4" style={{ borderWidth: '3px' }}>
                 <div className="flex items-start gap-3">
                   <span className="text-xl shrink-0">{question.emoji}</span>
-                  <p className="text-base font-bold text-white leading-snug">
+                  <p className="text-base font-black text-white leading-snug uppercase">
                     {question.text}
                   </p>
                 </div>
@@ -345,7 +340,7 @@ export default function QuestionOverlay({
                         {[1, 2, 3, 4, 5].map((i) => (
                           <motion.div
                             key={i}
-                            className="w-1 bg-burgundy-400 rounded-full"
+                            className="w-1 bg-brutal-red"
                             animate={{ height: [3, 10 + Math.random() * 8, 3] }}
                             transition={{
                               duration: 0.3 + Math.random() * 0.2,
@@ -355,27 +350,27 @@ export default function QuestionOverlay({
                           />
                         ))}
                       </div>
-                      <span className="text-[10px] text-burgundy-300 font-semibold uppercase tracking-wider">
+                      <span className="text-[10px] text-brutal-red font-black uppercase tracking-wider">
                         En écoute...
                       </span>
                     </>
                   ) : (
-                    <span className="text-[10px] text-white/30 font-medium">
+                    <span className="text-[10px] text-white/30 font-black uppercase">
                       Réponds à voix haute !
                     </span>
                   )}
                 </div>
 
-                {/* Timer bar (hidden for last question) */}
+                {/* Timer bar (hidden for last question) — sharp */}
                 {!isLastQuestion && (
-                  <div className="mt-3 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                  <div className="mt-3 h-2 bg-white/10 overflow-hidden">
                     <motion.div
-                      className={`h-full rounded-full transition-colors duration-500 ${
+                      className={`h-full transition-colors duration-500 ${
                         remainingSeconds <= 3
-                          ? "bg-red-400"
+                          ? "bg-brutal-red"
                           : isSpeaking
-                          ? "bg-burgundy-400"
-                          : "bg-white/60"
+                          ? "bg-brutal-red"
+                          : "bg-white"
                       }`}
                       style={{ width: `${100 - progress}%` }}
                     />
@@ -383,18 +378,18 @@ export default function QuestionOverlay({
                 )}
 
                 {isLastQuestion && (
-                  <p className="mt-3 text-[10px] text-white/40 font-medium text-center">
+                  <p className="mt-3 text-[10px] text-white/40 font-black text-center uppercase tracking-wider">
                     Prends ton temps, pas de limite
                   </p>
                 )}
               </div>
 
-              {/* Button */}
+              {/* Button — brutalist */}
               <motion.button
-                className={`mt-2 w-full py-3 rounded-xl backdrop-blur-sm text-sm font-bold active:scale-95 transition-all ${
+                className={`mt-2 w-full py-3 text-sm font-black uppercase tracking-wider active:translate-x-[2px] active:translate-y-[2px] transition-transform ${
                   isLastQuestion
-                    ? "bg-gradient-to-r from-burgundy-500 to-navy-500 text-white shadow-lg shadow-burgundy-500/30"
-                    : "bg-white/20 border border-white/20 text-white"
+                    ? "brutal-btn brutal-btn-primary"
+                    : "brutal-btn brutal-btn-dark"
                 }`}
                 whileTap={{ scale: 0.97 }}
                 onClick={advanceToNext}
@@ -402,7 +397,7 @@ export default function QuestionOverlay({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                {isLastQuestion ? "Terminer 🎬" : "Question suivante →"}
+                {isLastQuestion ? "Terminer" : "Question suivante →"}
               </motion.button>
             </motion.div>
           </AnimatePresence>

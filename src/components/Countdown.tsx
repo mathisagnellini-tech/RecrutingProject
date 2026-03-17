@@ -7,7 +7,7 @@ interface CountdownProps {
 }
 
 /**
- * Simple countdown without AnimatePresence to avoid skipping numbers.
+ * Brutalist countdown.
  * Phases: intro (3s) → 3 (1s) → 2 (1s) → 1 (1s) → GO (0.5s) → done
  */
 export default function Countdown({ onDone }: CountdownProps) {
@@ -39,19 +39,21 @@ export default function Countdown({ onDone }: CountdownProps) {
   }, [step]);
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80">
       {step === "intro" && (
         <div className="text-center px-8 animate-fade-in">
-          <p className="text-4xl font-black text-white leading-tight">
-            10 questions
+          <p className="text-5xl font-black text-white leading-none uppercase">
+            10 Questions
           </p>
-          <p className="text-2xl font-bold text-burgundy-400 mt-2">
-            12s par question
-          </p>
-          <p className="text-sm font-medium text-white/40 mt-1">
+          <div className="mt-3 inline-block">
+            <span className="brutal-tag brutal-tag-red text-sm px-4 py-2">
+              12s par question
+            </span>
+          </div>
+          <p className="text-xs font-bold text-white/40 mt-3 uppercase tracking-wider">
             La dernière est libre, prends ton temps
           </p>
-          <p className="text-xl font-black gradient-text mt-4">
+          <p className="text-2xl font-black text-brutal-yellow mt-5 uppercase">
             À toi de jouer !
           </p>
         </div>
@@ -59,7 +61,7 @@ export default function Countdown({ onDone }: CountdownProps) {
 
       {(step === "3" || step === "2" || step === "1") && (
         <div key={step} className="countdown-number">
-          <span className="text-8xl font-black text-white">
+          <span className="text-[120px] font-black text-white leading-none" style={{ WebkitTextStroke: '3px white' }}>
             {step}
           </span>
         </div>
@@ -67,7 +69,7 @@ export default function Countdown({ onDone }: CountdownProps) {
 
       {step === "go" && (
         <div className="countdown-number">
-          <span className="text-5xl font-black gradient-text">
+          <span className="text-6xl font-black bg-brutal-red text-white px-6 py-2 uppercase">
             GO !
           </span>
         </div>
@@ -75,18 +77,18 @@ export default function Countdown({ onDone }: CountdownProps) {
 
       <style jsx>{`
         .countdown-number {
-          animation: countPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          animation: countPop 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         @keyframes countPop {
           0% { transform: scale(0); opacity: 0; }
-          60% { transform: scale(1.15); opacity: 1; }
+          70% { transform: scale(1.05); opacity: 1; }
           100% { transform: scale(1); opacity: 1; }
         }
         .animate-fade-in {
-          animation: fadeIn 0.5s ease-out forwards;
+          animation: fadeIn 0.4s ease-out forwards;
         }
         @keyframes fadeIn {
-          0% { opacity: 0; transform: scale(0.9); }
+          0% { opacity: 0; transform: scale(0.95); }
           100% { opacity: 1; transform: scale(1); }
         }
       `}</style>
