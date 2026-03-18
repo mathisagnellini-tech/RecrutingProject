@@ -24,6 +24,7 @@ export default function RecapMontage({
 }: RecapMontageProps) {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [downloading, setDownloading] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const [currentSegment, setCurrentSegment] = useState(0);
   const [showingCard, setShowingCard] = useState(false);
   const [flashVisible, setFlashVisible] = useState(false);
@@ -31,23 +32,22 @@ export default function RecapMontage({
   const videoRef = useRef<HTMLVideoElement>(null);
   const cardTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const segmentRef = useRef(0);
-  const playingRef = useRef(false); // guards against double-advance
+  const playingRef = useRef(false);
   const showingCardRef = useRef(false);
+  const hasAdvancedRef = useRef<Set<number>>(new Set());
 
   const answeredQuestions = useMemo(
     () => questions.filter((q) => answeredIds.includes(q.id)),
     [answeredIds]
   );
 
+  // Build segments from answeredQuestions (not questionTimestamps) to avoid mismatch
   const segments = useMemo(
     () =>
-      questionTimestamps.map((ts, i) => ({
-        answerStart: ts + DISPLAY_DELAY,
-        answerEnd:
-          i < questionTimestamps.length - 1
-            ? questionTimestamps[i + 1]
-            : Infinity,
-        question: answeredQuestions[i],
+      answeredQuestions.map((q, i) => ({
+        answerStart: questionTimestamps[i] + DISPLAY_DELAY,
+        answerEnd: questionTimestamps[i + 1] ?? Infinity,
+        question: q,
       })),
     [questionTimestamps, answeredQuestions]
   );
@@ -69,6 +69,7 @@ export default function RecapMontage({
     });
   }, []);
 
+  // Play a segment: show card then resume video (no seeking — plays continuously)
   const playSegment = useCallback(
     (segIdx: number) => {
       const video = videoRef.current;
@@ -78,7 +79,6 @@ export default function RecapMontage({
         return;
       }
 
-      // Clear any pending card timer
       if (cardTimerRef.current) {
         clearTimeout(cardTimerRef.current);
         cardTimerRef.current = null;
@@ -99,12 +99,15 @@ export default function RecapMontage({
         setShowingCard(false);
         triggerFlash();
 
-        // Seek then play
-        video.currentTime = segments[segIdx].answerStart;
+        // For the first segment, start from the beginning
+        if (segIdx === 0) {
+          video.currentTime = 0;
+        }
+        // For subsequent segments, just resume from current position (no seeking)
         const playPromise = video.play();
         if (playPromise) {
           playPromise.catch(() => {
-            // Autoplay blocked — user interaction needed, ignore
+            // Autoplay blocked
           });
         }
       }, CARD_DURATION);
@@ -133,13 +136,12 @@ export default function RecapMontage({
     }
   }, [videoUrl]);
 
-  // Watch video time — advance segments
+  // Watch video time — advance segments (continuous playback, no seeking)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const onTimeUpdate = () => {
-      // Use refs to avoid stale closures
       if (showingCardRef.current || !playingRef.current) return;
 
       const idx = segmentRef.current;
@@ -148,8 +150,10 @@ export default function RecapMontage({
 
       if (
         seg.answerEnd !== Infinity &&
-        video.currentTime >= seg.answerEnd - 0.15
+        video.currentTime >= seg.answerEnd - 0.15 &&
+        !hasAdvancedRef.current.has(idx)
       ) {
+        hasAdvancedRef.current.add(idx);
         const nextIdx = idx + 1;
         if (nextIdx < segments.length) {
           playSegment(nextIdx);
@@ -183,40 +187,73 @@ export default function RecapMontage({
     };
   }, []);
 
+  const getFileExtension = useCallback(() => {
+    if (!videoBlob) return "webm";
+    if (videoBlob.type.includes("mp4")) return "mp4";
+    return "webm";
+  }, [videoBlob]);
+
   const handleDownload = useCallback(() => {
     if (!videoBlob) return;
     setDownloading(true);
+    const ext = getFileExtension();
     const url = URL.createObjectURL(videoBlob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `fast-and-curious-${Date.now()}.webm`;
+    a.download = `fast-and-curious-${Date.now()}.${ext}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     setTimeout(() => setDownloading(false), 1000);
-  }, [videoBlob]);
+  }, [videoBlob, getFileExtension]);
 
   const handleShare = useCallback(async () => {
     if (!videoBlob) return;
-    const file = new File([videoBlob], "fast-and-curious.webm", {
-      type: videoBlob.type,
+    setSharing(true);
+
+    const ext = getFileExtension();
+    const mimeType = videoBlob.type || `video/${ext}`;
+    const file = new File([videoBlob], `fast-and-curious.${ext}`, {
+      type: mimeType,
     });
 
-    if (navigator.share && navigator.canShare({ files: [file] })) {
-      try {
-        await navigator.share({
-          title: "Ma vidéo Fast & Curious",
-          text: "Regarde ma vidéo de recrutement Fast & Curious !",
-          files: [file],
-        });
-      } catch {
-        // cancelled
+    // Try Web Share API (works on mobile for Instagram, Snapchat, WhatsApp, etc.)
+    if (navigator.share) {
+      const shareData: ShareData = {
+        title: "Ma vidéo Fast & Curious",
+        text: "Regarde ma vidéo de recrutement Fast & Curious !",
+        files: [file],
+      };
+
+      // Check if files can be shared
+      if (navigator.canShare && navigator.canShare(shareData)) {
+        try {
+          await navigator.share(shareData);
+          setSharing(false);
+          return;
+        } catch {
+          // User cancelled or error — fall through to download
+        }
+      } else {
+        // Try sharing without files (just text)
+        try {
+          await navigator.share({
+            title: "Ma vidéo Fast & Curious",
+            text: "Regarde ma vidéo de recrutement Fast & Curious !",
+          });
+          setSharing(false);
+          return;
+        } catch {
+          // Fall through to download
+        }
       }
-    } else {
-      handleDownload();
     }
-  }, [videoBlob, handleDownload]);
+
+    // Fallback: download the file
+    handleDownload();
+    setSharing(false);
+  }, [videoBlob, handleDownload, getFileExtension]);
 
   const handleReplay = useCallback(() => {
     if (cardTimerRef.current) {
@@ -226,6 +263,7 @@ export default function RecapMontage({
     segmentRef.current = 0;
     playingRef.current = false;
     showingCardRef.current = false;
+    hasAdvancedRef.current = new Set();
     setCurrentSegment(0);
     setShowingCard(false);
     setRecapPhase("intro");
@@ -266,7 +304,7 @@ export default function RecapMontage({
       <AnimatePresence>
         {recapPhase === "intro" && (
           <motion.div
-            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black"
+            className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-navy-500"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, scale: 1.1 }}
@@ -290,7 +328,7 @@ export default function RecapMontage({
         {showingCard && currentQuestion && (
           <motion.div
             key={`card-${currentQuestion.id}`}
-            className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black"
+            className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-navy-500"
             initial={{ opacity: 0, scale: 1.2 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
@@ -357,7 +395,7 @@ export default function RecapMontage({
                   key={i}
                   className={`h-1 flex-1 transition-all duration-300 ${
                     i < currentSegment
-                      ? "bg-brutal-red"
+                      ? "bg-burgundy-500"
                       : i === currentSegment
                       ? "bg-white"
                       : "bg-white/20"
@@ -408,11 +446,11 @@ export default function RecapMontage({
             {/* Decorative geometric shapes */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <div
-                className="absolute top-[-40px] right-[-40px] w-[200px] h-[200px] bg-brutal-yellow border-[4px] border-black"
+                className="absolute top-[-40px] right-[-40px] w-[200px] h-[200px] bg-navy-500 border-[4px] border-black"
                 style={{ transform: "rotate(15deg)" }}
               />
               <div
-                className="absolute bottom-[-30px] left-[-30px] w-[180px] h-[180px] bg-brutal-red border-[4px] border-black"
+                className="absolute bottom-[-30px] left-[-30px] w-[180px] h-[180px] bg-burgundy-500 border-[4px] border-black"
                 style={{ transform: "rotate(-10deg)" }}
               />
             </div>
@@ -432,7 +470,7 @@ export default function RecapMontage({
                 C&apos;est dans
                 <br />
                 la{" "}
-                <span className="bg-brutal-red text-white px-2 inline-block">
+                <span className="bg-burgundy-500 text-white px-2 inline-block">
                   boîte !
                 </span>
               </motion.h1>
@@ -455,10 +493,10 @@ export default function RecapMontage({
               >
                 <button
                   onClick={handleShare}
-                  disabled={!videoBlob}
+                  disabled={!videoBlob || sharing}
                   className="w-full py-3.5 brutal-btn brutal-btn-primary text-sm disabled:opacity-50"
                 >
-                  Partager la vidéo →
+                  {sharing ? "Partage en cours..." : "Partager la vidéo →"}
                 </button>
 
                 <button
@@ -466,7 +504,7 @@ export default function RecapMontage({
                   disabled={!videoBlob || downloading}
                   className="w-full py-3 brutal-btn brutal-btn-secondary text-sm disabled:opacity-50"
                 >
-                  {downloading ? "Téléchargement..." : "Télécharger"}
+                  {downloading ? "Téléchargement..." : "Télécharger la vidéo"}
                 </button>
 
                 <div className="flex gap-2 pt-1">

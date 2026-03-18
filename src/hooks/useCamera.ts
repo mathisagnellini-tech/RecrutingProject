@@ -35,7 +35,10 @@ export function useCamera() {
     if (!streamRef.current) return;
 
     chunksRef.current = [];
-    const mimeType = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
+    // Prefer MP4 (Safari/iOS) for better sharing compatibility, fallback to WebM
+    const mimeType = MediaRecorder.isTypeSupported("video/mp4")
+      ? "video/mp4"
+      : MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
       ? "video/webm;codecs=vp9,opus"
       : "video/webm";
 

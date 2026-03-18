@@ -119,24 +119,24 @@ export default function Home() {
             >
               {/* Decorative geometric shapes — brutalist style */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {/* Big yellow rectangle, tilted */}
+                {/* Big navy rectangle, tilted */}
                 <div
-                  className="absolute top-1/4 right-[-40px] w-[280px] h-[280px] bg-brutal-yellow border-[4px] border-black"
+                  className="absolute top-1/4 right-[-40px] w-[280px] h-[280px] bg-navy-500 border-[4px] border-black"
                   style={{ transform: "rotate(12deg)" }}
                 />
-                {/* Red rectangle behind yellow */}
+                {/* Burgundy rectangle behind navy */}
                 <div
-                  className="absolute top-[22%] right-[-60px] w-[280px] h-[280px] bg-brutal-red border-[4px] border-black"
+                  className="absolute top-[22%] right-[-60px] w-[280px] h-[280px] bg-burgundy-500 border-[4px] border-black"
                   style={{ transform: "rotate(20deg)" }}
                 />
-                {/* Blue rectangle behind red */}
+                {/* Navy-light rectangle behind burgundy */}
                 <div
-                  className="absolute top-[26%] right-[-50px] w-[260px] h-[260px] bg-brutal-blue border-[4px] border-black"
+                  className="absolute top-[26%] right-[-50px] w-[260px] h-[260px] bg-navy-400 border-[4px] border-black"
                   style={{ transform: "rotate(28deg)" }}
                 />
-                {/* Asterisk on the yellow */}
+                {/* Asterisk */}
                 <div
-                  className="absolute top-[38%] right-[60px] text-5xl font-black text-black"
+                  className="absolute top-[38%] right-[60px] text-5xl font-black text-white"
                   style={{ transform: "rotate(12deg)" }}
                 >
                   *
@@ -161,7 +161,7 @@ export default function Home() {
                   FAST
                   <br />
                   &amp;{" "}
-                  <span className="bg-brutal-red text-white px-2 inline-block">
+                  <span className="bg-burgundy-500 text-white px-2 inline-block">
                     CURIOUS
                   </span>
                 </h1>
@@ -199,7 +199,7 @@ export default function Home() {
               >
                 <div className="flex justify-between text-center text-[10px] font-bold uppercase text-black/40 tracking-wider">
                   <div>
-                    <div className="w-8 h-8 border-2 border-black bg-brutal-yellow flex items-center justify-center mx-auto mb-1 text-black text-sm font-black">
+                    <div className="w-8 h-8 border-2 border-black bg-navy-500 flex items-center justify-center mx-auto mb-1 text-white text-sm font-black">
                       1
                     </div>
                     Exemple
@@ -217,7 +217,7 @@ export default function Home() {
                     <div className="h-[2px] bg-black/20 w-full" />
                   </div>
                   <div>
-                    <div className="w-8 h-8 border-2 border-black bg-brutal-red flex items-center justify-center mx-auto mb-1 text-white text-sm font-black">
+                    <div className="w-8 h-8 border-2 border-black bg-burgundy-500 flex items-center justify-center mx-auto mb-1 text-white text-sm font-black">
                       3
                     </div>
                     Action

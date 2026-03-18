@@ -53,7 +53,7 @@ export default function Countdown({ onDone }: CountdownProps) {
           <p className="text-xs font-bold text-white/40 mt-3 uppercase tracking-wider">
             La dernière est libre, prends ton temps
           </p>
-          <p className="text-2xl font-black text-brutal-yellow mt-5 uppercase">
+          <p className="text-2xl font-black text-burgundy-200 mt-5 uppercase">
             À toi de jouer !
           </p>
         </div>
@@ -69,7 +69,7 @@ export default function Countdown({ onDone }: CountdownProps) {
 
       {step === "go" && (
         <div className="countdown-number">
-          <span className="text-6xl font-black bg-brutal-red text-white px-6 py-2 uppercase">
+          <span className="text-6xl font-black bg-burgundy-500 text-white px-6 py-2 uppercase">
             GO !
           </span>
         </div>

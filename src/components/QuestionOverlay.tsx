@@ -152,7 +152,7 @@ export default function QuestionOverlay({
                   {[1, 2, 3].map((i) => (
                     <motion.div
                       key={i}
-                      className="w-0.5 bg-brutal-red"
+                      className="w-0.5 bg-burgundy-400"
                       animate={{ height: [4, 12, 4] }}
                       transition={{
                         duration: 0.4,
@@ -188,7 +188,7 @@ export default function QuestionOverlay({
                 key={i}
                 className={`h-1 flex-1 transition-all duration-500 ${
                   i < questionIndex
-                    ? "bg-brutal-red"
+                    ? "bg-burgundy-500"
                     : i === questionIndex
                     ? "bg-white"
                     : "bg-white/20"
@@ -258,7 +258,7 @@ export default function QuestionOverlay({
                 {/* Reading progress bar — sharp red */}
                 <div className="mt-5 h-1.5 bg-white/15 overflow-hidden">
                   <motion.div
-                    className="h-full bg-brutal-red"
+                    className="h-full bg-burgundy-500"
                     style={{ width: `${(displayTimer / QUESTION_DISPLAY_DELAY) * 100}%` }}
                   />
                 </div>
@@ -289,7 +289,7 @@ export default function QuestionOverlay({
               >
                 <p className="text-4xl font-black text-white uppercase">
                   Voici le{" "}
-                  <span className="bg-brutal-red px-2">récap !</span>
+                  <span className="bg-burgundy-500 px-2">récap !</span>
                 </p>
               </motion.div>
             ) : (
@@ -340,7 +340,7 @@ export default function QuestionOverlay({
                         {[1, 2, 3, 4, 5].map((i) => (
                           <motion.div
                             key={i}
-                            className="w-1 bg-brutal-red"
+                            className="w-1 bg-burgundy-500"
                             animate={{ height: [3, 10 + Math.random() * 8, 3] }}
                             transition={{
                               duration: 0.3 + Math.random() * 0.2,
@@ -350,7 +350,7 @@ export default function QuestionOverlay({
                           />
                         ))}
                       </div>
-                      <span className="text-[10px] text-brutal-red font-black uppercase tracking-wider">
+                      <span className="text-[10px] text-burgundy-400 font-black uppercase tracking-wider">
                         En écoute...
                       </span>
                     </>
@@ -367,9 +367,9 @@ export default function QuestionOverlay({
                     <motion.div
                       className={`h-full transition-colors duration-500 ${
                         remainingSeconds <= 3
-                          ? "bg-brutal-red"
+                          ? "bg-burgundy-500"
                           : isSpeaking
-                          ? "bg-brutal-red"
+                          ? "bg-burgundy-500"
                           : "bg-white"
                       }`}
                       style={{ width: `${100 - progress}%` }}

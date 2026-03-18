@@ -206,7 +206,7 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
                     {[1, 2, 3, 4, 5].map((i) => (
                       <motion.div
                         key={i}
-                        className="w-1 bg-brutal-red rounded-none"
+                        className="w-1 bg-burgundy-500 rounded-none"
                         animate={{ height: [3, 10 + Math.random() * 8, 3] }}
                         transition={{
                           duration: 0.3 + Math.random() * 0.2,
@@ -216,7 +216,7 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
                       />
                     ))}
                   </div>
-                  <span className="text-[10px] text-brutal-red font-black uppercase tracking-wider">
+                  <span className="text-[10px] text-burgundy-400 font-black uppercase tracking-wider">
                     Réponse en cours...
                   </span>
                 </motion.div>
@@ -224,7 +224,7 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
                 {/* Timer bar — sharp */}
                 <div className="mt-3 h-1.5 bg-white/10 overflow-hidden">
                   <motion.div
-                    className="h-full bg-brutal-red"
+                    className="h-full bg-burgundy-500"
                     initial={{ width: "100%" }}
                     animate={{ width: "0%" }}
                     transition={{ duration: 4, ease: "linear" }}
@@ -243,7 +243,7 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
             key={i}
             className={`h-1 transition-all duration-500 ${
               i === currentQ
-                ? "w-10 bg-brutal-red"
+                ? "w-10 bg-burgundy-500"
                 : i < currentQ
                 ? "w-6 bg-white"
                 : "w-6 bg-white/20"
