@@ -93,8 +93,8 @@ export default function Home() {
   }, [resetRecording]);
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-black">
-      <div className="relative w-full max-w-[430px] mx-auto video-container overflow-hidden bg-black" style={{ height: '100dvh' }}>
+    <main className="flex items-center justify-center min-h-screen bg-white">
+      <div className="relative w-full max-w-[430px] mx-auto video-container overflow-hidden bg-white" style={{ height: '100dvh' }}>
         {/* Camera feed for countdown & recording */}
         {(phase === "countdown" || phase === "recording") && (
           <video
