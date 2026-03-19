@@ -117,10 +117,10 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              {/* Hero illustration — top ~40% */}
+              {/* Hero illustration — top ~36% */}
               <motion.div
                 className="relative w-full"
-                style={{ height: '42%' }}
+                style={{ height: '36%' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1 }}
@@ -143,7 +143,7 @@ export default function Home() {
               </motion.div>
 
               {/* Content below image */}
-              <div className="relative z-10 flex flex-col flex-1 px-5 pt-7 pb-4">
+              <div className="relative z-10 flex flex-col flex-1 px-5 pt-6 pb-3">
                 <motion.div
                   className="text-left w-full"
                   initial={{ y: 20, opacity: 0 }}
@@ -151,7 +151,7 @@ export default function Home() {
                   transition={{ delay: 0.2 }}
                 >
                   {/* Main title */}
-                  <h1 className="text-[36px] leading-[0.95] font-black text-black mb-1 tracking-tight">
+                  <h1 className="text-[32px] leading-[0.95] font-black text-black mb-1 tracking-tight">
                     ENTRE TOI
                     <br />
                     &amp;{" "}
@@ -164,7 +164,7 @@ export default function Home() {
                     Between You &amp; Us
                   </div>
 
-                  <p className="text-black/80 text-[13px] leading-relaxed mb-4 max-w-[260px]">
+                  <p className="text-black/80 text-[13px] leading-relaxed mb-3 max-w-[260px]">
                     10 questions flash face caméra.
                     Réponds à voix haute, montre ta personnalité !
                   </p>
@@ -190,7 +190,7 @@ export default function Home() {
 
                 {/* Steps preview — bottom */}
                 <motion.div
-                  className="mt-auto pt-4"
+                  className="mt-auto pt-2"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}

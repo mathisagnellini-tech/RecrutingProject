@@ -327,7 +327,7 @@ export default function QuestionOverlay({
 
       {/* ===== COUNTDOWN PHASE: question at bottom, camera visible ===== */}
       {isCountdown && (
-        <div className="absolute inset-x-4 pointer-events-auto" style={{ bottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}>
+        <div className="absolute inset-x-3 pointer-events-auto" style={{ bottom: 'max(6px, env(safe-area-inset-bottom, 6px))' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={`countdown-${question.id}`}
@@ -335,7 +335,7 @@ export default function QuestionOverlay({
               animate={{ y: 0, opacity: 1 }}
               transition={{ type: "spring", damping: 22, stiffness: 280 }}
             >
-              <div className="bg-black/80 border-3 border-white p-4" style={{ borderWidth: '3px' }}>
+              <div className="bg-black/80 border-3 border-white p-3" style={{ borderWidth: '3px' }}>
                 <div className="flex items-start gap-3">
                   <span className="text-xl shrink-0">{question.emoji}</span>
                   <p className="text-base font-black text-white leading-snug uppercase">
@@ -396,7 +396,7 @@ export default function QuestionOverlay({
 
               {/* Button — brutalist */}
               <motion.button
-                className={`mt-2 w-full py-3 text-sm font-black uppercase tracking-wider active:translate-x-[2px] active:translate-y-[2px] transition-transform ${
+                className={`mt-1.5 w-full py-2.5 text-sm font-black uppercase tracking-wider active:translate-x-[2px] active:translate-y-[2px] transition-transform ${
                   isLastQuestion
                     ? "brutal-btn brutal-btn-primary"
                     : "brutal-btn brutal-btn-dark"
