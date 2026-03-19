@@ -271,14 +271,15 @@ export default function QuestionOverlay({
         )}
       </AnimatePresence>
 
-      {/* Transition overlay */}
+      {/* Transition overlay — Entre Nous bumper */}
       <AnimatePresence>
         {isTransition && (
           <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-40 pointer-events-none px-8"
+            className="absolute inset-0 flex flex-col items-center justify-center bg-navy-500 z-40 pointer-events-none"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
           >
             {isLastQuestion ? (
               <motion.div
@@ -295,20 +296,29 @@ export default function QuestionOverlay({
             ) : (
               <motion.div
                 className="text-center"
-                initial={{ scale: 0.5, opacity: 0 }}
+                initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", damping: 15 }}
               >
-                <motion.span
-                  className="text-5xl"
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ duration: 0.5 }}
+                <h2 className="text-[48px] leading-[0.95] font-black text-white tracking-tight">
+                  ENTRE
+                </h2>
+                <div className="flex items-center justify-center gap-2 mt-1">
+                  <span className="text-[48px] font-black text-white leading-none">&amp;</span>
+                  <span className="text-[48px] font-black leading-none bg-burgundy-500 text-white px-3">
+                    NOUS
+                  </span>
+                </div>
+                <motion.div
+                  className="mt-3"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
                 >
-                  {question.emoji}
-                </motion.span>
-                <p className="text-lg font-black text-white/60 mt-2 uppercase">
-                  ✓ {question.text}
-                </p>
+                  <span className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase">
+                    Question {questionIndex + 2}/{questions.length}
+                  </span>
+                </motion.div>
               </motion.div>
             )}
           </motion.div>

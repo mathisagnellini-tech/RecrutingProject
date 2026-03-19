@@ -117,22 +117,22 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              {/* Decorative geometric shapes — compact for mobile */}
+              {/* Decorative geometric shapes — centered like original */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div
-                  className="absolute top-[8%] right-[-30px] w-[160px] h-[160px] bg-navy-500 border-[3px] border-black"
+                  className="absolute top-[25%] right-[-40px] w-[200px] h-[200px] bg-navy-500 border-[3px] border-black"
                   style={{ transform: "rotate(12deg)" }}
                 />
                 <div
-                  className="absolute top-[5%] right-[-45px] w-[160px] h-[160px] bg-burgundy-500 border-[3px] border-black"
+                  className="absolute top-[22%] right-[-55px] w-[200px] h-[200px] bg-burgundy-500 border-[3px] border-black"
                   style={{ transform: "rotate(20deg)" }}
                 />
                 <div
-                  className="absolute top-[10%] right-[-35px] w-[145px] h-[145px] bg-navy-400 border-[3px] border-black"
+                  className="absolute top-[27%] right-[-45px] w-[180px] h-[180px] bg-navy-400 border-[3px] border-black"
                   style={{ transform: "rotate(28deg)" }}
                 />
                 <div
-                  className="absolute top-[20%] right-[40px] text-3xl font-black text-white"
+                  className="absolute top-[38%] right-[45px] text-3xl font-black text-white"
                   style={{ transform: "rotate(12deg)" }}
                 >
                   *
