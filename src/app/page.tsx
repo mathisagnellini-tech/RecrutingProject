@@ -117,57 +117,55 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              {/* Decorative geometric shapes — original brutalist style */}
+              {/* Decorative geometric shapes — compact for mobile */}
               <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div
-                  className="absolute top-[18%] right-[-40px] w-[240px] h-[240px] bg-navy-500 border-[4px] border-black"
+                  className="absolute top-[8%] right-[-30px] w-[160px] h-[160px] bg-navy-500 border-[3px] border-black"
                   style={{ transform: "rotate(12deg)" }}
                 />
                 <div
-                  className="absolute top-[15%] right-[-60px] w-[240px] h-[240px] bg-burgundy-500 border-[4px] border-black"
+                  className="absolute top-[5%] right-[-45px] w-[160px] h-[160px] bg-burgundy-500 border-[3px] border-black"
                   style={{ transform: "rotate(20deg)" }}
                 />
                 <div
-                  className="absolute top-[20%] right-[-50px] w-[220px] h-[220px] bg-navy-400 border-[4px] border-black"
+                  className="absolute top-[10%] right-[-35px] w-[145px] h-[145px] bg-navy-400 border-[3px] border-black"
                   style={{ transform: "rotate(28deg)" }}
                 />
                 <div
-                  className="absolute top-[32%] right-[50px] text-4xl font-black text-white"
+                  className="absolute top-[20%] right-[40px] text-3xl font-black text-white"
                   style={{ transform: "rotate(12deg)" }}
                 >
                   *
                 </div>
               </div>
 
-              <div className="relative z-10 flex flex-col justify-between h-full px-6 pt-12 pb-6">
-                <div>
-                  {/* Tags row */}
-                  <motion.div
-                    className="mb-4 flex items-center justify-between"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
-                  >
-                    <span className="brutal-tag brutal-tag-yellow">
-                      Video Interview
-                    </span>
-                    <span className="border-2 border-navy-500 text-navy-500 text-[0.6rem] font-bold tracking-[0.1em] uppercase px-2.5 py-1">
-                      Wesser
-                    </span>
-                  </motion.div>
-                </div>
+              <div className="relative z-10 flex flex-col justify-between h-full px-5 pt-10 pb-4">
+                {/* Tags row */}
+                <motion.div
+                  className="flex items-center justify-between"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <span className="brutal-tag brutal-tag-yellow">
+                    Video Interview
+                  </span>
+                  <span className="border-2 border-navy-500 text-navy-500 text-[0.6rem] font-bold tracking-[0.1em] uppercase px-2.5 py-1">
+                    Wesser
+                  </span>
+                </motion.div>
 
-                {/* Spacer to push content below the cards */}
-                <div className="flex-1 min-h-0" />
+                {/* Spacer — just enough for the cards */}
+                <div className="flex-1" />
 
                 <motion.div
                   className="text-left w-full"
-                  initial={{ y: 30, opacity: 0 }}
+                  initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
                 >
                   {/* Main title */}
-                  <h1 className="text-[48px] leading-[0.95] font-black text-black mb-1 tracking-tight">
+                  <h1 className="text-[42px] leading-[0.95] font-black text-black mb-1 tracking-tight">
                     ENTRE
                     <br />
                     &amp;{" "}
@@ -176,11 +174,11 @@ export default function Home() {
                     </span>
                   </h1>
 
-                  <div className="text-[0.55rem] font-semibold tracking-[0.2em] text-black/40 uppercase mb-3">
+                  <div className="text-[0.5rem] font-semibold tracking-[0.2em] text-black/40 uppercase mb-2">
                     Between Us
                   </div>
 
-                  <p className="text-black/80 text-sm leading-relaxed mb-5 max-w-[260px]">
+                  <p className="text-black/80 text-[13px] leading-relaxed mb-4 max-w-[260px]">
                     10 questions flash face caméra.
                     Réponds à voix haute, montre ta personnalité !
                   </p>
@@ -188,7 +186,7 @@ export default function Home() {
                   <div className="flex gap-3">
                     <motion.button
                       onClick={handleStartExample}
-                      className="brutal-btn brutal-btn-primary py-3 px-6 text-sm"
+                      className="brutal-btn brutal-btn-primary py-2.5 px-5 text-xs"
                       whileTap={{ scale: 0.97 }}
                     >
                       C&apos;est parti !&ensp;→
@@ -196,7 +194,7 @@ export default function Home() {
 
                     <motion.button
                       onClick={handleGoDirectly}
-                      className="brutal-btn brutal-btn-secondary py-3 px-5 text-xs"
+                      className="brutal-btn brutal-btn-secondary py-2.5 px-4 text-xs"
                       whileTap={{ scale: 0.97 }}
                     >
                       Go direct
@@ -206,32 +204,32 @@ export default function Home() {
 
                 {/* Steps preview — bottom */}
                 <motion.div
-                  className="mt-auto pt-6"
+                  className="pt-5"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <div className="flex justify-between text-center text-[10px] font-bold uppercase text-black/40 tracking-wider">
+                  <div className="flex justify-between text-center text-[9px] font-bold uppercase text-black/40 tracking-wider">
                     <div>
-                      <div className="w-7 h-7 border-2 border-black bg-navy-500 flex items-center justify-center mx-auto mb-1 text-white text-xs font-black">
+                      <div className="w-6 h-6 border-2 border-black bg-navy-500 flex items-center justify-center mx-auto mb-1 text-white text-[10px] font-black">
                         1
                       </div>
                       Exemple
                     </div>
                     <div className="flex-1 flex items-center px-2">
-                      <div className="h-[2px] bg-black/20 w-full" />
+                      <div className="h-[1.5px] bg-black/20 w-full" />
                     </div>
                     <div>
-                      <div className="w-7 h-7 border-2 border-black bg-white flex items-center justify-center mx-auto mb-1 text-black text-xs font-black">
+                      <div className="w-6 h-6 border-2 border-black bg-white flex items-center justify-center mx-auto mb-1 text-black text-[10px] font-black">
                         2
                       </div>
                       Caméra
                     </div>
                     <div className="flex-1 flex items-center px-2">
-                      <div className="h-[2px] bg-black/20 w-full" />
+                      <div className="h-[1.5px] bg-black/20 w-full" />
                     </div>
                     <div>
-                      <div className="w-7 h-7 border-2 border-black bg-burgundy-500 flex items-center justify-center mx-auto mb-1 text-white text-xs font-black">
+                      <div className="w-6 h-6 border-2 border-black bg-burgundy-500 flex items-center justify-center mx-auto mb-1 text-white text-[10px] font-black">
                         3
                       </div>
                       Action
