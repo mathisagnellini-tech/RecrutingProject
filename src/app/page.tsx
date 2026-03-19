@@ -117,10 +117,10 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              {/* Hero illustration — top ~36% */}
+              {/* Hero illustration — top ~32% */}
               <motion.div
                 className="relative w-full"
-                style={{ height: '36%' }}
+                style={{ height: '32%' }}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.1 }}
@@ -143,7 +143,7 @@ export default function Home() {
               </motion.div>
 
               {/* Content below image */}
-              <div className="relative z-10 flex flex-col flex-1 px-5 pt-6 pb-3">
+              <div className="relative z-10 flex flex-col flex-1 px-5 pt-5 pb-2">
                 <motion.div
                   className="text-left w-full"
                   initial={{ y: 20, opacity: 0 }}
@@ -160,11 +160,11 @@ export default function Home() {
                     </span>
                   </h1>
 
-                  <div className="text-[0.5rem] font-semibold tracking-[0.2em] text-black/40 uppercase mb-2">
+                  <div className="text-[0.5rem] font-semibold tracking-[0.2em] text-black/40 uppercase mb-1">
                     Between You &amp; Us
                   </div>
 
-                  <p className="text-black/80 text-[13px] leading-relaxed mb-3 max-w-[260px]">
+                  <p className="text-black/80 text-[13px] leading-snug mb-2 max-w-[260px]">
                     10 questions flash face caméra.
                     Réponds à voix haute, montre ta personnalité !
                   </p>
@@ -172,7 +172,7 @@ export default function Home() {
                   <div className="flex gap-3">
                     <motion.button
                       onClick={handleStartExample}
-                      className="brutal-btn brutal-btn-primary py-2.5 px-5 text-xs"
+                      className="brutal-btn brutal-btn-primary py-2 px-5 text-xs"
                       whileTap={{ scale: 0.97 }}
                     >
                       C&apos;est parti !&ensp;→
@@ -180,7 +180,7 @@ export default function Home() {
 
                     <motion.button
                       onClick={handleGoDirectly}
-                      className="brutal-btn brutal-btn-secondary py-2.5 px-4 text-xs"
+                      className="brutal-btn brutal-btn-secondary py-2 px-4 text-xs"
                       whileTap={{ scale: 0.97 }}
                     >
                       Go direct
