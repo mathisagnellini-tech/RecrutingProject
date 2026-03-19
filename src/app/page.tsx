@@ -143,7 +143,7 @@ export default function Home() {
               </motion.div>
 
               {/* Content below image */}
-              <div className="relative z-10 flex flex-col flex-1 px-5 pt-5 pb-2">
+              <div className="relative z-10 px-5 pt-5">
                 <motion.div
                   className="text-left w-full"
                   initial={{ y: 20, opacity: 0 }}
@@ -190,7 +190,7 @@ export default function Home() {
 
                 {/* Steps preview — bottom */}
                 <motion.div
-                  className="mt-auto pt-2"
+                  className="mt-5"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}
