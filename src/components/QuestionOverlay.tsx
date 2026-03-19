@@ -300,12 +300,12 @@ export default function QuestionOverlay({
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", damping: 15 }}
               >
-                <h2 className="text-[48px] leading-[0.95] font-black text-white tracking-tight">
-                  ENTRE
+                <h2 className="text-[42px] leading-[0.95] font-black text-white tracking-tight">
+                  ENTRE TOI
                 </h2>
                 <div className="flex items-center justify-center gap-2 mt-1">
-                  <span className="text-[48px] font-black text-white leading-none">&amp;</span>
-                  <span className="text-[48px] font-black leading-none bg-burgundy-500 text-white px-3">
+                  <span className="text-[42px] font-black text-white leading-none">&amp;</span>
+                  <span className="text-[42px] font-black leading-none bg-burgundy-500 text-white px-3">
                     NOUS
                   </span>
                 </div>

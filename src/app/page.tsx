@@ -117,47 +117,33 @@ export default function Home() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              {/* Decorative geometric shapes — centered like original */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div
-                  className="absolute top-[25%] right-[-40px] w-[200px] h-[200px] bg-navy-500 border-[3px] border-black"
-                  style={{ transform: "rotate(12deg)" }}
+              {/* Hero illustration — top ~40% */}
+              <motion.div
+                className="relative w-full"
+                style={{ height: '42%' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                <img
+                  src="/hero-illustration.png"
+                  alt="Video interview illustration"
+                  className="w-full h-full object-cover"
+                  style={{ borderRadius: '0 0 24px 24px' }}
                 />
-                <div
-                  className="absolute top-[22%] right-[-55px] w-[200px] h-[200px] bg-burgundy-500 border-[3px] border-black"
-                  style={{ transform: "rotate(20deg)" }}
-                />
-                <div
-                  className="absolute top-[27%] right-[-45px] w-[180px] h-[180px] bg-navy-400 border-[3px] border-black"
-                  style={{ transform: "rotate(28deg)" }}
-                />
-                <div
-                  className="absolute top-[38%] right-[45px] text-3xl font-black text-white"
-                  style={{ transform: "rotate(12deg)" }}
-                >
-                  *
-                </div>
-              </div>
-
-              <div className="relative z-10 flex flex-col justify-between h-full px-5 pt-10 pb-4">
-                {/* Tags row */}
-                <motion.div
-                  className="flex items-center justify-between"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                >
+                {/* Badges overlapping the image bottom edge */}
+                <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 px-5 flex items-center justify-between z-10">
                   <span className="brutal-tag brutal-tag-yellow">
                     Video Interview
                   </span>
-                  <span className="border-2 border-navy-500 text-navy-500 text-[0.6rem] font-bold tracking-[0.1em] uppercase px-2.5 py-1">
+                  <span className="border-2 border-navy-500 text-navy-500 text-[0.6rem] font-bold tracking-[0.1em] uppercase px-2.5 py-1 bg-white">
                     Wesser
                   </span>
-                </motion.div>
+                </div>
+              </motion.div>
 
-                {/* Spacer — just enough for the cards */}
-                <div className="flex-1" />
-
+              {/* Content below image */}
+              <div className="relative z-10 flex flex-col flex-1 px-5 pt-7 pb-4">
                 <motion.div
                   className="text-left w-full"
                   initial={{ y: 20, opacity: 0 }}
@@ -165,8 +151,8 @@ export default function Home() {
                   transition={{ delay: 0.2 }}
                 >
                   {/* Main title */}
-                  <h1 className="text-[42px] leading-[0.95] font-black text-black mb-1 tracking-tight">
-                    ENTRE
+                  <h1 className="text-[36px] leading-[0.95] font-black text-black mb-1 tracking-tight">
+                    ENTRE TOI
                     <br />
                     &amp;{" "}
                     <span className="bg-burgundy-500 text-white px-2 inline-block">
@@ -175,7 +161,7 @@ export default function Home() {
                   </h1>
 
                   <div className="text-[0.5rem] font-semibold tracking-[0.2em] text-black/40 uppercase mb-2">
-                    Between Us
+                    Between You &amp; Us
                   </div>
 
                   <p className="text-black/80 text-[13px] leading-relaxed mb-4 max-w-[260px]">
@@ -204,7 +190,7 @@ export default function Home() {
 
                 {/* Steps preview — bottom */}
                 <motion.div
-                  className="pt-5"
+                  className="mt-auto pt-4"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6 }}

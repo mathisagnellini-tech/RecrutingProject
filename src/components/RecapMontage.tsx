@@ -221,8 +221,8 @@ export default function RecapMontage({
     // Try Web Share API (works on mobile for Instagram, Snapchat, WhatsApp, etc.)
     if (navigator.share) {
       const shareData: ShareData = {
-        title: "Ma vidéo Entre Nous",
-        text: "Regarde ma vidéo de recrutement Entre Nous !",
+        title: "Ma vidéo Entre Toi & Nous",
+        text: "Regarde ma vidéo de recrutement Entre Toi & Nous !",
         files: [file],
       };
 
@@ -239,8 +239,8 @@ export default function RecapMontage({
         // Try sharing without files (just text)
         try {
           await navigator.share({
-            title: "Ma vidéo Entre Nous",
-            text: "Regarde ma vidéo de recrutement Entre Nous !",
+            title: "Ma vidéo Entre Toi & Nous",
+            text: "Regarde ma vidéo de recrutement Entre Toi & Nous !",
           });
           setSharing(false);
           return;
@@ -481,7 +481,7 @@ export default function RecapMontage({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                {answeredIds.length} questions — Entre Nous
+                {answeredIds.length} questions — Entre Toi & Nous
               </motion.p>
 
               {/* Actions — brutalist buttons */}
