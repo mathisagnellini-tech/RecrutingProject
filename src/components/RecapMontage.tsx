@@ -200,7 +200,7 @@ export default function RecapMontage({
     const url = URL.createObjectURL(videoBlob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `fast-and-curious-${Date.now()}.${ext}`;
+    a.download = `entre-nous-${Date.now()}.${ext}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -214,15 +214,15 @@ export default function RecapMontage({
 
     const ext = getFileExtension();
     const mimeType = videoBlob.type || `video/${ext}`;
-    const file = new File([videoBlob], `fast-and-curious.${ext}`, {
+    const file = new File([videoBlob], `entre-nous.${ext}`, {
       type: mimeType,
     });
 
     // Try Web Share API (works on mobile for Instagram, Snapchat, WhatsApp, etc.)
     if (navigator.share) {
       const shareData: ShareData = {
-        title: "Ma vidéo Fast & Curious",
-        text: "Regarde ma vidéo de recrutement Fast & Curious !",
+        title: "Ma vidéo Entre Nous",
+        text: "Regarde ma vidéo de recrutement Entre Nous !",
         files: [file],
       };
 
@@ -239,8 +239,8 @@ export default function RecapMontage({
         // Try sharing without files (just text)
         try {
           await navigator.share({
-            title: "Ma vidéo Fast & Curious",
-            text: "Regarde ma vidéo de recrutement Fast & Curious !",
+            title: "Ma vidéo Entre Nous",
+            text: "Regarde ma vidéo de recrutement Entre Nous !",
           });
           setSharing(false);
           return;
@@ -481,7 +481,7 @@ export default function RecapMontage({
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.5 }}
               >
-                {answeredIds.length} questions — Fast &amp; Curious
+                {answeredIds.length} questions — Entre Nous
               </motion.p>
 
               {/* Actions — brutalist buttons */}

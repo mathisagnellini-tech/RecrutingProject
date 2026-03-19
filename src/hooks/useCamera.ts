@@ -15,7 +15,7 @@ export function useCamera() {
   const startCamera = useCallback(async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 1080, height: 1920 },
+        video: { facingMode: "user", width: { ideal: 720 }, height: { ideal: 1280 } },
         audio: true,
       });
       streamRef.current = mediaStream;

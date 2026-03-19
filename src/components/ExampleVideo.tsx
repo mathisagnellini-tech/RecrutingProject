@@ -237,7 +237,7 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
       </div>
 
       {/* Progress bars at very bottom — sharp */}
-      <div className="absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-2 px-4">
+      <div className="absolute left-0 right-0 z-20 flex justify-center gap-2 px-4" style={{ bottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}>
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}

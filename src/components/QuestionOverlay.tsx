@@ -317,7 +317,7 @@ export default function QuestionOverlay({
 
       {/* ===== COUNTDOWN PHASE: question at bottom, camera visible ===== */}
       {isCountdown && (
-        <div className="absolute inset-x-4 bottom-6 pointer-events-auto">
+        <div className="absolute inset-x-4 pointer-events-auto" style={{ bottom: 'max(12px, env(safe-area-inset-bottom, 12px))' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={`countdown-${question.id}`}
