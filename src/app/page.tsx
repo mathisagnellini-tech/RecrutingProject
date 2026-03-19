@@ -143,7 +143,7 @@ export default function Home() {
               </motion.div>
 
               {/* Content below image */}
-              <div className="relative z-10 px-5 pt-5">
+              <div className="relative z-10 px-5 pt-10">
                 <motion.div
                   className="text-left w-full"
                   initial={{ y: 20, opacity: 0 }}
