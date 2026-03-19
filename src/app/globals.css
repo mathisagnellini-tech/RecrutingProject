@@ -205,29 +205,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Bebas Neue', sans-serif;
 }
 
-.w-deco {
-  position: fixed;
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: 5rem;
-  opacity: 0.07;
-  pointer-events: none;
-  user-select: none;
-  z-index: 0;
-  animation: floatW 6s ease-in-out infinite;
-}
-
-.w-deco:nth-child(1)  { top: 5%;  left: 3%;   color: var(--navy); font-size: 4rem; animation-delay: 0s; }
-.w-deco:nth-child(2)  { top: 12%; right: 8%;  color: var(--burgundy); font-size: 6rem; animation-delay: 1s; }
-.w-deco:nth-child(3)  { top: 30%; left: -1%;  color: var(--burgundy); font-size: 3rem; animation-delay: 2s; }
-.w-deco:nth-child(4)  { top: 45%; right: 2%;  color: var(--navy); font-size: 7rem; animation-delay: 0.5s; }
-.w-deco:nth-child(5)  { top: 60%; left: 8%;   color: var(--navy); font-size: 3.5rem; animation-delay: 3s; }
-.w-deco:nth-child(6)  { top: 72%; right: 5%;  color: var(--burgundy); font-size: 4.5rem; animation-delay: 1.5s; }
-.w-deco:nth-child(7)  { top: 85%; left: 20%;  color: var(--burgundy); font-size: 5rem; animation-delay: 2.5s; }
-.w-deco:nth-child(8)  { top: 92%; right: 15%; color: var(--navy); font-size: 3rem; animation-delay: 0.8s; }
-.w-deco:nth-child(9)  { top: 20%; left: 40%;  color: var(--navy); font-size: 2rem; opacity: 0.05; animation-delay: 4s; }
-.w-deco:nth-child(10) { top: 78%; left: 55%;  color: var(--burgundy); font-size: 2.5rem; opacity: 0.05; animation-delay: 3.5s; }
-
 @keyframes floatW {
   0%, 100% { transform: translateY(0px) rotate(-3deg); }
-  50% { transform: translateY(-8px) rotate(3deg); }
+  50% { transform: translateY(-6px) rotate(3deg); }
 }
