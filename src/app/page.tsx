@@ -112,118 +112,143 @@ export default function Home() {
           {phase === "landing" && (
             <motion.div
               key="landing"
-              className="absolute inset-0 flex flex-col items-center justify-center bg-white p-8"
+              className="absolute inset-0 flex flex-col bg-white overflow-hidden"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
             >
-              {/* Decorative geometric shapes — brutalist style */}
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {/* Big navy rectangle, tilted */}
-                <div
-                  className="absolute top-1/4 right-[-40px] w-[280px] h-[280px] bg-navy-500 border-[4px] border-black"
-                  style={{ transform: "rotate(12deg)" }}
-                />
-                {/* Burgundy rectangle behind navy */}
-                <div
-                  className="absolute top-[22%] right-[-60px] w-[280px] h-[280px] bg-burgundy-500 border-[4px] border-black"
-                  style={{ transform: "rotate(20deg)" }}
-                />
-                {/* Navy-light rectangle behind burgundy */}
-                <div
-                  className="absolute top-[26%] right-[-50px] w-[260px] h-[260px] bg-navy-400 border-[4px] border-black"
-                  style={{ transform: "rotate(28deg)" }}
-                />
-                {/* Asterisk */}
-                <div
-                  className="absolute top-[38%] right-[60px] text-5xl font-black text-white"
-                  style={{ transform: "rotate(12deg)" }}
-                >
-                  *
-                </div>
-              </div>
+              {/* W decorations */}
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} className="w-deco font-bebas">W</div>
+              ))}
 
-              <motion.div
-                className="relative z-10 text-left w-full"
-                initial={{ y: 30 }}
-                animate={{ y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                {/* Tag */}
-                <div className="mb-6">
-                  <span className="brutal-tag brutal-tag-yellow">
+              <div className="relative z-10 flex flex-col h-full px-7">
+                {/* Header */}
+                <motion.div
+                  className="pt-[52px] flex items-center justify-between"
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  <span
+                    className="bg-navy-500 text-white text-[0.65rem] font-bold tracking-[0.15em] uppercase px-[14px] py-[7px]"
+                  >
                     Video Interview
                   </span>
-                </div>
-
-                {/* Main title — huge, black, brutalist */}
-                <h1 className="text-[52px] leading-[0.95] font-black text-black mb-4 tracking-tight">
-                  FAST
-                  <br />
-                  &amp;{" "}
-                  <span className="bg-burgundy-500 text-white px-2 inline-block">
-                    CURIOUS
+                  <span
+                    className="border-2 border-navy-500 text-navy-500 text-[0.65rem] font-bold tracking-[0.1em] uppercase px-3 py-[5px]"
+                  >
+                    Wesser
                   </span>
-                </h1>
+                </motion.div>
 
-                <p className="text-black/60 text-sm leading-relaxed mb-8 max-w-[240px]">
-                  10 questions flash face caméra.
-                  Réponds à voix haute, montre ta personnalité !
-                </p>
+                {/* Cards area */}
+                <motion.div
+                  className="relative h-[260px] mt-8 ml-auto w-[260px]"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <div
+                    className="absolute w-[200px] h-[200px] border-[3px] border-black bg-burgundy-500"
+                    style={{ top: 30, right: 0, transform: "rotate(12deg)" }}
+                  />
+                  <div
+                    className="absolute w-[200px] h-[200px] border-[3px] border-black bg-navy-500 flex items-center justify-center"
+                    style={{ top: 10, right: 30, transform: "rotate(5deg)" }}
+                  >
+                    <span className="text-white text-5xl font-black opacity-80">*</span>
+                  </div>
+                </motion.div>
 
-                <div className="flex gap-3">
+                {/* Title block */}
+                <motion.div
+                  className="relative z-10 -mt-[60px]"
+                  initial={{ y: 30, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <div className="font-bebas text-[5.5rem] leading-[0.9] text-black tracking-[0.02em]">
+                    ENTRE
+                  </div>
+                  <div className="flex items-center gap-[14px] mt-1">
+                    <span className="font-bebas text-[5.5rem] text-black leading-none">&amp;</span>
+                    <span className="font-bebas text-[5.5rem] leading-none bg-burgundy-500 text-white px-3 tracking-[0.02em]">
+                      NOUS
+                    </span>
+                  </div>
+                  <div className="text-[0.7rem] font-semibold tracking-[0.2em] text-gray-400 uppercase mt-[10px]">
+                    Between Us
+                  </div>
+                </motion.div>
+
+                {/* Subtitle */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <p className="mt-[22px] text-[1.05rem] font-semibold text-gray-900 leading-[1.5] max-w-[300px]">
+                    10 questions flash <span className="text-burgundy-500">face camera.</span>
+                  </p>
+                  <p className="mt-2 text-[0.88rem] text-gray-400 leading-[1.55] max-w-[280px]">
+                    Reponds a voix haute, montre ta personnalite — pas de bonne ou mauvaise reponse, juste toi.
+                  </p>
+                </motion.div>
+
+                {/* CTA Buttons */}
+                <motion.div
+                  className="flex gap-3 mt-9 flex-wrap"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                >
                   <motion.button
                     onClick={handleStartExample}
-                    className="brutal-btn brutal-btn-primary py-3 px-6 text-sm"
+                    className="flex-1 min-w-[140px] bg-navy-500 text-white text-[0.8rem] font-bold tracking-[0.12em] uppercase py-[18px] px-7 border-none flex items-center justify-center gap-2 hover:bg-navy-400 transition-colors"
                     whileTap={{ scale: 0.97 }}
                   >
-                    C&apos;est parti !&ensp;→
+                    C&apos;est parti !&ensp;&rarr;
                   </motion.button>
 
                   <motion.button
                     onClick={handleGoDirectly}
-                    className="brutal-btn brutal-btn-secondary py-3 px-5 text-xs"
+                    className="flex-1 min-w-[140px] bg-transparent text-black text-[0.8rem] font-bold tracking-[0.12em] uppercase py-[18px] px-7 border-[2.5px] border-black hover:bg-black hover:text-white transition-colors"
                     whileTap={{ scale: 0.97 }}
                   >
-                    Go direct
+                    Go Direct
                   </motion.button>
-                </div>
-              </motion.div>
+                </motion.div>
 
-              {/* Steps preview — bottom */}
-              <motion.div
-                className="absolute bottom-6 left-0 right-0 px-8"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                <div className="flex justify-between text-center text-[10px] font-bold uppercase text-black/40 tracking-wider">
-                  <div>
-                    <div className="w-8 h-8 border-2 border-black bg-navy-500 flex items-center justify-center mx-auto mb-1 text-white text-sm font-black">
+                {/* Steps — bottom */}
+                <motion.div
+                  className="mt-auto pb-10 pt-8 flex items-center justify-between"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-11 h-11 flex items-center justify-center text-base font-extrabold bg-navy-500 text-white border-[2.5px] border-navy-500">
                       1
                     </div>
-                    Exemple
+                    <div className="text-[0.6rem] font-bold tracking-[0.15em] uppercase text-gray-400">Exemple</div>
                   </div>
-                  <div className="flex-1 flex items-center px-2">
-                    <div className="h-[2px] bg-black/20 w-full" />
-                  </div>
-                  <div>
-                    <div className="w-8 h-8 border-2 border-black bg-white flex items-center justify-center mx-auto mb-1 text-black text-sm font-black">
+                  <div className="flex-1 h-[1.5px] bg-gray-200 mx-1 mb-5" />
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-11 h-11 flex items-center justify-center text-base font-extrabold border-[2.5px] border-black text-black">
                       2
                     </div>
-                    Caméra
+                    <div className="text-[0.6rem] font-bold tracking-[0.15em] uppercase text-gray-400">Camera</div>
                   </div>
-                  <div className="flex-1 flex items-center px-2">
-                    <div className="h-[2px] bg-black/20 w-full" />
-                  </div>
-                  <div>
-                    <div className="w-8 h-8 border-2 border-black bg-burgundy-500 flex items-center justify-center mx-auto mb-1 text-white text-sm font-black">
+                  <div className="flex-1 h-[1.5px] bg-gray-200 mx-1 mb-5" />
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="w-11 h-11 flex items-center justify-center text-base font-extrabold bg-burgundy-500 text-white border-[2.5px] border-burgundy-500">
                       3
                     </div>
-                    Action
+                    <div className="text-[0.6rem] font-bold tracking-[0.15em] uppercase text-gray-400">Action</div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              </div>
             </motion.div>
           )}
 

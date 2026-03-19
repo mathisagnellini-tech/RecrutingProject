@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Fast & Curious - Recrutement Vidéo",
-  description: "Présente-toi en vidéo façon Fast & Curious",
+  title: "Entre Nous – Video Interview | Wesser",
+  description: "10 questions flash face caméra — montre ta personnalité",
 };
 
 export const viewport: Viewport = {
