@@ -131,8 +131,12 @@ export default function Home() {
                   className="w-full h-full object-cover"
                   style={{ borderRadius: '0 0 24px 24px' }}
                 />
-                {/* Badges overlapping the image bottom edge */}
-                <div className="absolute bottom-0 left-0 right-0 translate-y-1/2 px-5 flex items-center justify-between z-10">
+              </motion.div>
+
+              {/* Content below image */}
+              <div className="relative z-10 px-5 pt-20">
+                {/* Badges */}
+                <div className="flex items-center justify-between mb-4">
                   <span className="brutal-tag brutal-tag-yellow">
                     Video Interview
                   </span>
@@ -140,10 +144,6 @@ export default function Home() {
                     Wesser
                   </span>
                 </div>
-              </motion.div>
-
-              {/* Content below image */}
-              <div className="relative z-10 px-5 pt-20">
                 <motion.div
                   className="text-left w-full"
                   initial={{ y: 20, opacity: 0 }}
