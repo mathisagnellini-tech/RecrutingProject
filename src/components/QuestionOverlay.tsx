@@ -16,188 +16,51 @@ const QUESTION_DURATION = 12;
 const QUESTION_DISPLAY_DELAY = 3;
 
 /* ─────────────────────────────────────────────────────────
-   GEOMETRIC PATTERNS — rendered behind the text,
-   only in the background/edges, never over the text zone
+   LIQUID GLASS TRANSITION ANIMATIONS
+   Soft, flowing shapes that animate through the screen
    ───────────────────────────────────────────────────────── */
 
-function PatternRadialDots() {
-  const dots = Array.from({ length: 40 });
-  return (
-    <motion.div
-      className="absolute inset-0"
-      initial={{ rotate: 0 }}
-      animate={{ rotate: 180 }}
-      transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-    >
-      {dots.map((_, i) => {
-        const angle = (i / 40) * 360;
-        const radius = 35 + (i % 3) * 15;
-        return (
-          <motion.div
-            key={i}
-            className="absolute rounded-full"
-            style={{
-              width: 4 + (i % 4) * 3,
-              height: 4 + (i % 4) * 3,
-              background: i % 3 === 0 ? '#8B1A2B' : i % 3 === 1 ? 'white' : '#364d7a',
-              opacity: 0.25,
-              top: `${50 + radius * Math.sin((angle * Math.PI) / 180)}%`,
-              left: `${50 + radius * Math.cos((angle * Math.PI) / 180)}%`,
-              transform: 'translate(-50%, -50%)',
-            }}
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: i * 0.02, duration: 0.3 }}
-          />
-        );
-      })}
-    </motion.div>
-  );
-}
+function LiquidOrbs({ variant }: { variant: number }) {
+  const colors = [
+    ['#7C5CFC', '#5B8DEF', '#D946EF'],
+    ['#D946EF', '#7C5CFC', '#5B8DEF'],
+    ['#5B8DEF', '#D946EF', '#7C5CFC'],
+  ][variant % 3];
 
-function PatternConcentricCircles() {
-  const rings = Array.from({ length: 10 });
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      {rings.map((_, i) => (
+    <div className="absolute inset-0 overflow-hidden">
+      {colors.map((color, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full"
           style={{
-            border: `${i % 2 === 0 ? 2 : 1}px solid ${i % 3 === 0 ? '#8B1A2B' : 'white'}`,
-            opacity: 0.12 + i * 0.03,
+            width: 120 + i * 40,
+            height: 120 + i * 40,
+            background: `radial-gradient(circle, ${color}40 0%, transparent 70%)`,
+            filter: 'blur(30px)',
           }}
-          initial={{ width: 0, height: 0 }}
+          initial={{
+            x: i % 2 === 0 ? '-30%' : '130%',
+            y: `${20 + i * 25}%`,
+            scale: 0.5,
+            opacity: 0,
+          }}
           animate={{
-            width: (i + 1) * 80,
-            height: (i + 1) * 80,
+            x: `${20 + i * 25}%`,
+            y: `${15 + i * 20}%`,
+            scale: [0.5, 1.2, 1],
+            opacity: [0, 0.6, 0.4],
           }}
-          transition={{ delay: i * 0.05, duration: 0.5, ease: "easeOut" }}
+          transition={{
+            duration: 1.5,
+            delay: i * 0.15,
+            ease: [0.16, 1, 0.3, 1],
+          }}
         />
       ))}
     </div>
   );
 }
-
-function PatternHorizontalBars() {
-  const bars = Array.from({ length: 16 });
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      {bars.map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute left-0 right-0"
-          style={{
-            height: i % 2 === 0 ? '3px' : '6px',
-            background: i % 4 === 0 ? '#8B1A2B' : i % 4 === 2 ? 'white' : 'transparent',
-            opacity: i % 4 === 3 ? 0 : 0.15,
-            top: `${(i / 16) * 100}%`,
-          }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: i * 0.03, duration: 0.3, ease: "easeOut" }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function PatternScatteredShapes() {
-  const shapes = useMemo(() => Array.from({ length: 18 }, (_, i) => ({
-    type: ['circle', 'square', 'diamond'][i % 3] as string,
-    x: 5 + (i * 37 + 13) % 85,
-    y: 3 + (i * 53 + 7) % 90,
-    size: 6 + (i % 5) * 4,
-    color: i % 3 === 0 ? '#8B1A2B' : i % 3 === 1 ? 'white' : '#364d7a',
-    delay: i * 0.04,
-  })), []);
-
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      {shapes.map((s, i) => (
-        <motion.div
-          key={i}
-          className={s.type === 'circle' ? 'rounded-full' : ''}
-          style={{
-            position: 'absolute',
-            width: s.size,
-            height: s.size,
-            background: s.type === 'diamond' ? 'transparent' : s.color,
-            border: s.type === 'diamond' ? `2px solid ${s.color}` : 'none',
-            opacity: 0.2,
-            top: `${s.y}%`,
-            left: `${s.x}%`,
-            transform: s.type === 'diamond' ? 'rotate(45deg)' : undefined,
-          }}
-          initial={{ scale: 0, rotate: -90 }}
-          animate={{ scale: 1, rotate: s.type === 'diamond' ? 45 : 0 }}
-          transition={{ delay: s.delay, duration: 0.4, type: "spring", damping: 12 }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function PatternWavyCircles() {
-  const circles = Array.from({ length: 12 });
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      {circles.map((_, i) => (
-        <motion.div
-          key={i}
-          className="absolute rounded-full"
-          style={{
-            width: 20 + i * 8,
-            height: 20 + i * 8,
-            border: '2px solid',
-            borderColor: i % 2 === 0 ? 'rgba(139,26,43,0.25)' : 'rgba(255,255,255,0.12)',
-            top: `${15 + (i % 4) * 20}%`,
-            left: i % 2 === 0 ? '-5%' : undefined,
-            right: i % 2 === 1 ? '-5%' : undefined,
-          }}
-          initial={{ scale: 0, x: i % 2 === 0 ? -30 : 30 }}
-          animate={{ scale: 1, x: 0 }}
-          transition={{ delay: i * 0.06, duration: 0.5 }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function PatternDiagonalStripes() {
-  const stripes = Array.from({ length: 14 });
-  return (
-    <div className="absolute inset-0 overflow-hidden" style={{ transform: 'rotate(-15deg) scale(1.4)' }}>
-      {stripes.map((_, i) => (
-        <motion.div
-          key={i}
-          style={{
-            height: i % 3 === 0 ? '4px' : '2px',
-            background: i % 4 === 0 ? '#8B1A2B' : i % 4 === 2 ? 'rgba(255,255,255,0.5)' : 'transparent',
-            opacity: 0.15,
-            marginBottom: '20px',
-          }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: i * 0.03, duration: 0.3 }}
-        />
-      ))}
-    </div>
-  );
-}
-
-const PATTERNS = [
-  PatternRadialDots,
-  PatternConcentricCircles,
-  PatternHorizontalBars,
-  PatternScatteredShapes,
-  PatternWavyCircles,
-  PatternDiagonalStripes,
-  PatternRadialDots,
-  PatternConcentricCircles,
-  PatternScatteredShapes,
-  PatternWavyCircles,
-] as const;
 
 /* ─────────────────────────────────────────────────────────
    MAIN COMPONENT
@@ -306,7 +169,6 @@ export default function QuestionOverlay({
   const isDisplayPhase = phase === "display";
   const isTransition = phase === "transition";
   const isCountdown = phase === "countdown";
-  const PatternComponent = PATTERNS[questionIndex % PATTERNS.length];
 
   return (
     <div className="absolute inset-0 z-30 pointer-events-none">
@@ -316,20 +178,20 @@ export default function QuestionOverlay({
         <div className="absolute top-4 left-4 right-4 pointer-events-auto z-50">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 brutal-tag brutal-tag-red">
+              <span className="pill pill-rec">
                 <motion.div
-                  className="w-2 h-2 rounded-full bg-white"
+                  className="w-2 h-2 rounded-full bg-red-400"
                   animate={{ opacity: [1, 0.3, 1] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
                 />
-                <span className="text-[10px] font-black tracking-wider uppercase">REC</span>
-              </div>
+                <span className="text-[10px] font-semibold tracking-wider uppercase">REC</span>
+              </span>
               {isSpeaking && isCountdown && (
                 <div className="flex items-center gap-0.5">
                   {[1, 2, 3].map((i) => (
                     <motion.div
                       key={i}
-                      className="w-0.5 bg-burgundy-400 rounded-full"
+                      className="w-0.5 rounded-full bg-accent-purple"
                       animate={{ height: [4, 12, 4] }}
                       transition={{ duration: 0.4, repeat: Infinity, delay: i * 0.1 }}
                     />
@@ -338,50 +200,25 @@ export default function QuestionOverlay({
               )}
             </div>
             <div className="flex items-center gap-2">
-              <span className={`text-xs font-black tabular-nums brutal-tag ${
-                isDisplayPhase ? "brutal-tag-white" : remainingSeconds <= 3 ? "brutal-tag-red" : "brutal-tag-white"
-              }`}>
-                {isDisplayPhase ? "LIS..." : isLastQuestion ? "∞" : `${remainingSeconds}S`}
+              <span className="pill text-xs font-semibold">
+                {isDisplayPhase ? "Lis..." : isLastQuestion ? "∞" : `${remainingSeconds}s`}
               </span>
-              <span className="text-xs font-black brutal-tag brutal-tag-yellow">
+              <span className="pill pill-accent text-xs font-semibold">
                 {questionIndex + 1}/{questions.length}
               </span>
             </div>
           </div>
-          <div className="flex gap-1 mt-2">
+          {/* Progress bar */}
+          <div className="flex gap-1.5 mt-3">
             {questions.map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 flex-1 transition-all duration-500 ${
-                  i < questionIndex ? "bg-burgundy-500" : i === questionIndex ? "bg-white" : "bg-white/20"
+                className={`h-[3px] flex-1 rounded-full transition-all duration-500 ${
+                  i < questionIndex ? "bg-accent-purple" : i === questionIndex ? "bg-white" : "bg-white/15"
                 }`}
-                style={{ borderRadius: i === questionIndex ? '4px' : '0' }}
               />
             ))}
           </div>
-        </div>
-      )}
-
-      {/* ═══════════════ CAMERA CORNERS ═══════════════ */}
-      {isCountdown && (
-        <div className="absolute inset-6 pointer-events-none">
-          <div className="absolute top-0 left-0 w-10 h-10 border-white" style={{ borderTopWidth: '3px', borderLeftWidth: '3px' }} />
-          <div className="absolute top-0 right-0 w-10 h-10 border-white" style={{ borderTopWidth: '3px', borderRightWidth: '3px' }} />
-          <div className="absolute bottom-0 left-0 w-10 h-10 border-white" style={{ borderBottomWidth: '3px', borderLeftWidth: '3px' }} />
-          <div className="absolute bottom-0 right-0 w-10 h-10 border-white" style={{ borderBottomWidth: '3px', borderRightWidth: '3px' }} />
-          {/* Decorative circles in corners */}
-          <motion.div
-            className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-burgundy-500"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3 }}
-          />
-          <motion.div
-            className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-burgundy-500"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.4 }}
-          />
         </div>
       )}
 
@@ -395,86 +232,60 @@ export default function QuestionOverlay({
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="absolute inset-0 bg-black/80" />
-
-            {/* Decorative corner circles */}
-            <motion.div className="absolute top-8 left-6 w-16 h-16 rounded-full border-2 border-burgundy-500/20"
-              initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 }} />
-            <motion.div className="absolute bottom-12 right-8 w-24 h-24 rounded-full border border-white/10"
-              initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3 }} />
-            <motion.div className="absolute top-20 right-4 w-5 h-5 rounded-full bg-burgundy-500/30"
-              initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.4 }} />
-            <motion.div className="absolute bottom-24 left-10 w-3 h-3 rounded-full bg-white/15"
-              initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.35 }} />
+            {/* Blurred dark backdrop */}
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
 
             {/* Question card */}
             <motion.div
               className="relative z-10 mx-5 max-w-sm w-full"
-              initial={{ y: 40, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -20, opacity: 0 }}
-              transition={{ type: "spring", damping: 20, stiffness: 250 }}
+              initial={{ y: 30, opacity: 0, scale: 0.95 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: -15, opacity: 0, scale: 0.97 }}
+              transition={{ type: "spring", damping: 25, stiffness: 250 }}
             >
-              {/* Category + number row */}
+              {/* Category pill */}
               <motion.div
                 className="flex items-center justify-between mb-3"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.15 }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
               >
-                <span className="brutal-tag brutal-tag-red text-xs">{question.category}</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-burgundy-500/60" />
-                  <span className="text-[10px] font-black text-white/40 tracking-[0.15em] uppercase">
-                    Q.{questionIndex + 1}
-                  </span>
-                </div>
+                <span className="pill pill-accent text-[10px]">{question.category}</span>
+                <span className="text-[10px] font-medium text-white/30">
+                  Q.{questionIndex + 1}
+                </span>
               </motion.div>
 
-              {/* Card */}
-              <div className="relative">
-                {/* Decorative dot cluster top-right */}
-                <div className="absolute -top-2 -right-2 flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-burgundy-500" />
-                  <div className="w-2 h-2 rounded-full bg-white/40" />
-                  <div className="w-2 h-2 rounded-full bg-burgundy-500/50" />
-                </div>
-                {/* Side accent */}
-                <motion.div
-                  className="absolute top-3 -left-3 w-1.5 h-14 bg-burgundy-500 rounded-full"
-                  initial={{ scaleY: 0 }}
-                  animate={{ scaleY: 1 }}
-                  transition={{ delay: 0.2, duration: 0.3 }}
-                  style={{ transformOrigin: 'top' }}
-                />
-
-                <div className="bg-black p-5" style={{ borderWidth: '3px', borderStyle: 'solid', borderColor: 'white' }}>
-                  <div className="flex items-start gap-4">
-                    <motion.div
-                      className="relative shrink-0"
-                      animate={{ scale: [1, 1.15, 1] }}
-                      transition={{ duration: 0.8, delay: 0.3 }}
-                    >
-                      <span className="text-3xl">{question.emoji}</span>
-                      <div className="absolute -bottom-1 -right-1 w-3 h-3 rounded-full bg-burgundy-500/40" />
-                    </motion.div>
-                    <p className="text-lg font-black text-white leading-snug pt-0.5 uppercase">
-                      {question.text}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 relative">
-                    <div className="h-2 bg-white/10 overflow-hidden rounded-full">
-                      <motion.div
-                        className="h-full bg-burgundy-500 rounded-full"
-                        style={{ width: `${(displayTimer / QUESTION_DISPLAY_DELAY) * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                  <p className="text-[9px] text-white/35 mt-2 text-center font-black uppercase tracking-[0.25em]">
-                    Prépare ta réponse
+              {/* Glass card */}
+              <div className="glass-card p-6">
+                <div className="flex items-start gap-4">
+                  <motion.span
+                    className="text-3xl shrink-0"
+                    animate={{ scale: [1, 1.15, 1] }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                  >
+                    {question.emoji}
+                  </motion.span>
+                  <p className="text-lg font-semibold text-white leading-snug pt-0.5">
+                    {question.text}
                   </p>
                 </div>
+
+                {/* Reading progress */}
+                <div className="mt-5">
+                  <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      className="h-full rounded-full"
+                      style={{
+                        background: 'linear-gradient(90deg, #7C5CFC, #5B8DEF)',
+                        width: `${(displayTimer / QUESTION_DISPLAY_DELAY) * 100}%`,
+                      }}
+                    />
+                  </div>
+                </div>
+                <p className="text-[10px] text-white/30 mt-2 text-center font-medium tracking-wide">
+                  Prépare ta réponse...
+                </p>
               </div>
             </motion.div>
           </motion.div>
@@ -482,8 +293,7 @@ export default function QuestionOverlay({
       </AnimatePresence>
 
       {/* ═══════════════ TRANSITION ═══════════════
-           Pattern is in the BACKGROUND,
-           text sits in a solid panel on top so it's always readable
+           Liquid glass animation with text always on solid backdrop
       */}
       <AnimatePresence>
         {isTransition && (
@@ -492,50 +302,30 @@ export default function QuestionOverlay({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.25 }}
           >
-            {/* Solid background */}
-            <div className="absolute inset-0 bg-navy-500" />
+            {/* Dark gradient base */}
+            <div className="absolute inset-0 gradient-mesh" />
+            <div className="absolute inset-0 bg-black/30" />
 
-            {/* Geometric pattern — background only */}
-            <PatternComponent />
+            {/* Liquid orbs flowing */}
+            <LiquidOrbs variant={questionIndex} />
 
-            {/* Border frame with rounded corners */}
-            <div className="absolute inset-3 rounded-sm" style={{ borderWidth: '2px', borderStyle: 'solid', borderColor: 'rgba(255,255,255,0.1)' }} />
-
-            {/* Corner dots */}
-            <div className="absolute top-5 left-5 flex gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-burgundy-500" />
-              <div className="w-2.5 h-2.5 rounded-full bg-white/30" />
-              <div className="w-2.5 h-2.5 rounded-full bg-burgundy-500/50" />
-            </div>
-            <div className="absolute bottom-5 right-5 flex gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-burgundy-500/50" />
-              <div className="w-2.5 h-2.5 rounded-full bg-white/30" />
-              <div className="w-2.5 h-2.5 rounded-full bg-burgundy-500" />
-            </div>
-
-            {/* ── TEXT CONTENT: sits on solid backdrop ── */}
+            {/* Content — always on solid backdrop */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               {isLastQuestion ? (
                 <motion.div
                   className="text-center relative z-10"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ type: "spring", damping: 12 }}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ type: "spring", damping: 15 }}
                 >
-                  {/* Solid background panel */}
-                  <div className="bg-navy-500 px-10 py-6 rounded-sm" style={{ boxShadow: '0 0 60px 30px #1a2744' }}>
-                    <motion.div
-                      className="inline-block bg-burgundy-500 px-6 py-3 mb-3"
-                      style={{ borderWidth: '3px', borderStyle: 'solid', borderColor: 'white' }}
-                    >
-                      <p className="text-3xl font-black text-white uppercase tracking-tight">
-                        Récap !
-                      </p>
-                    </motion.div>
+                  <div className="glass-heavy px-10 py-8">
+                    <p className="text-4xl font-extrabold liquid-glass-text tracking-tight">
+                      Récap !
+                    </p>
                     <motion.p
-                      className="text-[10px] font-bold tracking-[0.3em] text-white/60 uppercase"
+                      className="text-[11px] font-medium text-white/40 mt-2 tracking-wide"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.4 }}
@@ -549,66 +339,48 @@ export default function QuestionOverlay({
                   className="text-center relative z-10 w-full max-w-xs"
                   initial={{ scale: 0.85, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ type: "spring", damping: 15 }}
+                  transition={{ type: "spring", damping: 18 }}
                 >
-                  {/* ★ SOLID BACKGROUND PANEL — ensures text is always readable ★ */}
-                  <div className="bg-navy-500 px-6 py-8 relative" style={{ boxShadow: '0 0 80px 40px #1a2744' }}>
-                    {/* Decorative circles inside panel */}
-                    <div className="absolute top-3 right-3 w-4 h-4 rounded-full border border-white/15" />
-                    <div className="absolute bottom-4 left-4 w-3 h-3 rounded-full bg-burgundy-500/30" />
-
+                  {/* Glass panel for text */}
+                  <div className="glass-heavy px-6 py-8">
                     {/* Transition message */}
                     <motion.p
-                      className="text-sm font-black text-white/50 uppercase tracking-[0.15em] mb-4"
-                      initial={{ y: -15, opacity: 0 }}
+                      className="text-sm font-medium text-white/40 tracking-wide mb-4"
+                      initial={{ y: -10, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 0.1 }}
                     >
                       {transitionMessage}
                     </motion.p>
 
-                    {/* ENTRE TOI & NOUS */}
-                    <h2 className="text-[44px] leading-[0.9] font-black text-white tracking-tight">
-                      ENTRE TOI
+                    {/* ENTRE TOI & NOUS — liquid glass */}
+                    <h2 className="text-[42px] leading-[0.9] font-extrabold tracking-tight">
+                      <span className="text-white">ENTRE TOI</span>
                     </h2>
                     <div className="flex items-center justify-center gap-2 mt-1">
-                      <span className="text-[44px] font-black text-white leading-none">&amp;</span>
+                      <span className="text-[42px] font-extrabold text-white/40 leading-none">&amp;</span>
                       <motion.span
-                        className="text-[44px] font-black leading-none bg-burgundy-500 text-white px-4 inline-block"
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ delay: 0.2, duration: 0.3 }}
+                        className="text-[42px] font-extrabold leading-none liquid-glass-text"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.2, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                       >
                         NOUS
                       </motion.span>
                     </div>
 
-                    {/* Separator line with dots */}
+                    {/* Question counter */}
                     <motion.div
                       className="mt-5 flex items-center justify-center gap-3"
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4 }}
                     >
-                      <div className="h-px w-6 bg-white/25" />
-                      <div className="w-1.5 h-1.5 rounded-full bg-burgundy-500" />
-                      <span className="text-[11px] font-black tracking-[0.15em] text-white/50 uppercase">
+                      <div className="h-px w-8 bg-white/15" />
+                      <span className="text-[11px] font-medium text-white/35 tracking-wide">
                         Question {questionIndex + 1}/{questions.length}
                       </span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-burgundy-500" />
-                      <div className="h-px w-6 bg-white/25" />
-                    </motion.div>
-
-                    {/* Bottom decorative dots */}
-                    <motion.div
-                      className="flex justify-center gap-1.5 mt-4"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.6 }}
-                    >
-                      <div className="w-2 h-2 rounded-full bg-burgundy-500" />
-                      <div className="w-2 h-2 rounded-full bg-white/50" />
-                      <div className="w-2 h-2 rounded-full bg-burgundy-500" />
+                      <div className="h-px w-8 bg-white/15" />
                     </motion.div>
                   </div>
                 </motion.div>
@@ -618,106 +390,93 @@ export default function QuestionOverlay({
         )}
       </AnimatePresence>
 
-      {/* ═══════════════ COUNTDOWN PHASE — RAISED for mobile ═══════════════ */}
+      {/* ═══════════════ COUNTDOWN — question card ═══════════════ */}
       {isCountdown && (
         <div className="absolute inset-x-3 pointer-events-auto" style={{ bottom: 'max(80px, calc(env(safe-area-inset-bottom, 0px) + 80px))' }}>
           <AnimatePresence mode="wait">
             <motion.div
               key={`countdown-${question.id}`}
-              initial={{ y: 60, opacity: 0 }}
+              initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ type: "spring", damping: 22, stiffness: 280 }}
+              transition={{ type: "spring", damping: 25, stiffness: 280 }}
             >
-              <div className="relative">
-                {/* Side accent bar — rounded */}
-                <motion.div
-                  className="absolute -left-1.5 top-3 bottom-3 w-1.5 bg-burgundy-500 rounded-full"
-                  initial={{ scaleY: 0 }}
-                  animate={{ scaleY: 1 }}
-                  transition={{ delay: 0.2, duration: 0.3 }}
-                  style={{ transformOrigin: 'top' }}
-                />
-                {/* Dot cluster top-right */}
-                <div className="absolute -top-1.5 -right-1.5 flex gap-1">
-                  <div className="w-2 h-2 rounded-full bg-burgundy-500" />
-                  <div className="w-1.5 h-1.5 rounded-full bg-white/40 mt-0.5" />
+              <div className="glass-card p-5">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="pill pill-accent text-[9px] py-1 px-2.5">{question.category}</span>
+                  <span className="text-[9px] font-medium text-white/25">
+                    Q.{questionIndex + 1}
+                  </span>
                 </div>
 
-                <div className="bg-black/85 p-4" style={{ borderWidth: '3px', borderStyle: 'solid', borderColor: 'white' }}>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1.5 h-1.5 rounded-full bg-burgundy-400" />
-                      <span className="text-[9px] font-black tracking-[0.15em] text-burgundy-400 uppercase">
-                        {question.category}
+                <div className="flex items-start gap-3">
+                  <span className="text-xl shrink-0">{question.emoji}</span>
+                  <p className="text-[15px] font-semibold text-white leading-snug">
+                    {question.text}
+                  </p>
+                </div>
+
+                <div className="mt-3 flex items-center gap-2">
+                  {isSpeaking ? (
+                    <>
+                      <div className="flex items-center gap-0.5">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                          <motion.div
+                            key={i}
+                            className="w-1 rounded-full bg-accent-purple"
+                            animate={{ height: [3, 10 + Math.random() * 8, 3] }}
+                            transition={{
+                              duration: 0.3 + Math.random() * 0.2,
+                              repeat: Infinity,
+                              delay: i * 0.08,
+                            }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-[10px] text-accent-purple font-medium">
+                        En écoute...
                       </span>
-                    </div>
-                    <span className="text-[9px] font-black tracking-[0.1em] text-white/30 uppercase">
-                      Q.{questionIndex + 1}
+                    </>
+                  ) : (
+                    <span className="text-[10px] text-white/25 font-medium">
+                      Réponds à voix haute !
                     </span>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="text-xl shrink-0">{question.emoji}</span>
-                    <p className="text-base font-black text-white leading-snug uppercase">
-                      {question.text}
-                    </p>
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-2">
-                    {isSpeaking ? (
-                      <>
-                        <div className="flex items-center gap-0.5">
-                          {[1, 2, 3, 4, 5].map((i) => (
-                            <motion.div
-                              key={i}
-                              className="w-1 bg-burgundy-500 rounded-full"
-                              animate={{ height: [3, 10 + Math.random() * 8, 3] }}
-                              transition={{ duration: 0.3 + Math.random() * 0.2, repeat: Infinity, delay: i * 0.08 }}
-                            />
-                          ))}
-                        </div>
-                        <span className="text-[10px] text-burgundy-400 font-black uppercase tracking-wider">
-                          En écoute...
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-[10px] text-white/30 font-black uppercase">
-                        Réponds à voix haute !
-                      </span>
-                    )}
-                  </div>
-
-                  {!isLastQuestion && (
-                    <div className="mt-3 h-2 bg-white/10 overflow-hidden rounded-full">
-                      <motion.div
-                        className={`h-full rounded-full transition-colors duration-500 ${
-                          remainingSeconds <= 3 ? "bg-burgundy-500" : isSpeaking ? "bg-burgundy-500" : "bg-white"
-                        }`}
-                        style={{ width: `${100 - progress}%` }}
-                      />
-                    </div>
-                  )}
-
-                  {isLastQuestion && (
-                    <p className="mt-3 text-[10px] text-white/40 font-black text-center uppercase tracking-wider">
-                      Prends ton temps, pas de limite
-                    </p>
                   )}
                 </div>
+
+                {/* Timer bar */}
+                {!isLastQuestion && (
+                  <div className="mt-3 h-1 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      className={`h-full rounded-full transition-colors duration-500`}
+                      style={{
+                        width: `${100 - progress}%`,
+                        background: remainingSeconds <= 3
+                          ? 'linear-gradient(90deg, #ef4444, #f97316)'
+                          : 'linear-gradient(90deg, #7C5CFC, #5B8DEF)',
+                      }}
+                    />
+                  </div>
+                )}
+
+                {isLastQuestion && (
+                  <p className="mt-3 text-[10px] text-white/30 text-center font-medium">
+                    Prends ton temps, pas de limite ✨
+                  </p>
+                )}
               </div>
 
               <motion.button
-                className={`mt-2 w-full py-3 text-sm font-black uppercase tracking-wider transition-transform ${
-                  isLastQuestion ? "brutal-btn brutal-btn-primary" : "brutal-btn brutal-btn-dark"
+                className={`mt-2.5 w-full py-3.5 text-sm font-semibold rounded-2xl transition-all ${
+                  isLastQuestion ? "btn-primary" : "btn-glass"
                 }`}
                 whileTap={{ scale: 0.97 }}
                 onClick={advanceToNext}
                 disabled={isTransition}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
               >
-                {isLastQuestion ? "Terminer" : "Question suivante →"}
+                {isLastQuestion ? "Terminer ✨" : "Question suivante →"}
               </motion.button>
             </motion.div>
           </AnimatePresence>

@@ -2,17 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=SF+Pro+Display:wght@400;500;600;700&display=swap');
 
 :root {
-  --brutal-red: #8B1A2B;
-  --brutal-yellow: #1a2744; /* navy — used as brand accent, not actual yellow */
-  --brutal-black: #000000;
-  --brutal-white: #FFFFFF;
-  --navy: #1a2744;
-  --burgundy: #8B1A2B;
-  --navy-light: #364d7a;
-  --burgundy-light: #aa2040;
+  --accent-purple: #7C5CFC;
+  --accent-blue: #5B8DEF;
+  --accent-pink: #D946EF;
+  --gradient-start: #667eea;
+  --gradient-end: #764ba2;
+  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
 
 * {
@@ -22,30 +22,24 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif;
-  background: #fff;
-  color: #000;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #000;
+  color: #fff;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Space Grotesk', sans-serif;
-  text-transform: uppercase;
-  letter-spacing: -0.02em;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }
 
-/* Brutalist gradient text — navy/burgundy */
-.gradient-text {
-  background: linear-gradient(135deg, #8B1A2B, #1a2744);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Video container — fill viewport height on mobile, no aspect ratio overflow */
+/* Video container */
 .video-container {
   max-height: 100dvh;
-  max-height: 100vh; /* fallback */
+  max-height: 100vh;
 }
 
 @supports (height: 100dvh) {
@@ -54,159 +48,207 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Brutalist tag — bold label with hard bg */
-.brutal-tag {
-  display: inline-block;
-  padding: 4px 10px;
-  font-size: 10px;
-  font-weight: 800;
+/* ─── Liquid Glass ─── */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  border-radius: 20px;
+}
+
+.glass-heavy {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 1px solid rgba(255, 255, 255, 0.30);
+  border-radius: 24px;
+}
+
+.glass-dark {
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* ─── Gradient Backgrounds ─── */
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-mesh {
+  background:
+    radial-gradient(at 20% 80%, #7C5CFC33 0%, transparent 60%),
+    radial-gradient(at 80% 20%, #D946EF22 0%, transparent 60%),
+    radial-gradient(at 50% 50%, #5B8DEF22 0%, transparent 60%),
+    linear-gradient(135deg, #0f0c29 0%, #1a1040 50%, #24243e 100%);
+}
+
+/* ─── Buttons ─── */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 16px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.30);
+}
+
+.btn-glass:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #7C5CFC, #5B8DEF);
+  border: none;
+  border-radius: 16px;
+  padding: 12px 24px;
+  font-weight: 600;
+  font-size: 14px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 20px rgba(124, 92, 252, 0.3);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 30px rgba(124, 92, 252, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+/* ─── Tags / Pills ─── */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  border: 2px solid #000;
+  letter-spacing: 0.06em;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.brutal-tag-red {
-  background: #8B1A2B;
-  color: #fff;
+.pill-accent {
+  background: rgba(124, 92, 252, 0.2);
+  border-color: rgba(124, 92, 252, 0.3);
+  color: #c4b5fd;
 }
 
-.brutal-tag-yellow {
-  background: #1a2744;
-  color: #fff;
+.pill-rec {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #fca5a5;
 }
 
-.brutal-tag-white {
-  background: #fff;
-  color: #000;
+/* ─── Liquid Glass Text Effect ─── */
+.liquid-glass-text {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.4) 30%,
+    rgba(200, 180, 255, 0.8) 50%,
+    rgba(255, 255, 255, 0.4) 70%,
+    rgba(255, 255, 255, 0.9) 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: liquidShimmer 4s ease-in-out infinite;
+  filter: drop-shadow(0 2px 8px rgba(124, 92, 252, 0.3));
 }
 
-/* Brutalist card */
-.brutal-card {
-  background: #000;
-  border: 3px solid #fff;
-  padding: 20px;
+@keyframes liquidShimmer {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
-/* Question card animations */
-@keyframes slideInFromBottom {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+  display: none;
 }
 
-@keyframes slideOutToTop {
-  from {
-    transform: translateY(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateY(-100%);
-    opacity: 0;
-  }
-}
-
-.question-enter {
-  animation: slideInFromBottom 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-.question-exit {
-  animation: slideOutToTop 0.3s ease-in forwards;
-}
-
-/* Timer bar */
-@keyframes timerShrink {
-  from { width: 100%; }
-  to { width: 0%; }
-}
-
-/* Record pulse — burgundy */
+/* ─── Record Pulse ─── */
 @keyframes recordPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(139, 26, 43, 0.7); }
-  50% { box-shadow: 0 0 0 12px rgba(139, 26, 43, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
 }
 
 .record-pulse {
   animation: recordPulse 1.5s infinite;
 }
 
-/* Voice activity indicator */
-@keyframes voicePulse {
-  0%, 100% { transform: scale(1); opacity: 0.6; }
-  50% { transform: scale(1.3); opacity: 1; }
+/* ─── Smooth entrance ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.voice-active {
-  animation: voicePulse 0.4s ease-in-out infinite;
+.animate-fade-up {
+  animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Snap/TikTok style scrollbar hidden */
-::-webkit-scrollbar {
-  display: none;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
-/* Countdown animation — snappy, no bounce */
-@keyframes countdownPop {
-  0% { transform: scale(0); opacity: 0; }
-  70% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
 }
 
-.countdown-pop {
-  animation: countdownPop 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+/* ─── Floating Orb (background deco) ─── */
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(10px, -20px) scale(1.05); }
+  50% { transform: translate(-5px, -10px) scale(0.98); }
+  75% { transform: translate(15px, 5px) scale(1.02); }
 }
 
-/* Brutalist button */
-.brutal-btn {
-  border: 3px solid #000;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  transition: transform 0.1s ease;
-  cursor: pointer;
+.orb-float {
+  animation: float 8s ease-in-out infinite;
 }
 
-.brutal-btn:active {
-  transform: translate(2px, 2px);
-}
-
-.brutal-btn-primary {
-  background: #1a2744;
-  color: #fff;
-  border-color: #1a2744;
-}
-
-.brutal-btn-secondary {
-  background: #fff;
-  color: #000;
-  border-color: #000;
-}
-
-.brutal-btn-dark {
-  background: #000;
-  color: #fff;
-  border-color: #fff;
-}
-
-/* Glitch effect — more aggressive */
-@keyframes glitch {
-  0% { transform: translate(0); }
-  20% { transform: translate(-3px, 3px); }
-  40% { transform: translate(-3px, -3px); }
-  60% { transform: translate(3px, 3px); }
-  80% { transform: translate(3px, -3px); }
-  100% { transform: translate(0); }
-}
-
-.glitch-text {
-  animation: glitch 0.2s infinite;
-}
-
-/* Bebas Neue — used for special headings */
-.font-bebas {
-  font-family: 'Bebas Neue', sans-serif;
+.orb-float-slow {
+  animation: float 12s ease-in-out infinite;
 }

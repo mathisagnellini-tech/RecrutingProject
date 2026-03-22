@@ -8,12 +8,7 @@ import Countdown from "@/components/Countdown";
 import RecapMontage from "@/components/RecapMontage";
 import { useCamera } from "@/hooks/useCamera";
 
-type AppPhase =
-  | "landing"
-  | "example"
-  | "countdown"
-  | "recording"
-  | "recap";
+type AppPhase = "landing" | "example" | "countdown" | "recording" | "recap";
 
 export default function Home() {
   const [phase, setPhase] = useState<AppPhase>("landing");
@@ -22,21 +17,14 @@ export default function Home() {
   const [questionTimestamps, setQuestionTimestamps] = useState<number[]>([]);
   const recordingStartRef = useRef<number>(0);
   const {
-    videoRef,
-    stream,
-    recordedBlob,
-    startCamera,
-    startRecording,
-    stopRecording,
-    stopCamera,
-    resetRecording,
+    videoRef, stream, recordedBlob,
+    startCamera, startRecording, stopRecording, stopCamera, resetRecording,
   } = useCamera();
 
   useEffect(() => {
     if (
       (phase === "example" || phase === "countdown" || phase === "recording") &&
-      videoRef.current &&
-      stream
+      videoRef.current && stream
     ) {
       videoRef.current.srcObject = stream;
     }
@@ -51,9 +39,7 @@ export default function Home() {
     }
   }, [startCamera]);
 
-  const handleExampleDone = useCallback(() => {
-    setPhase("countdown");
-  }, []);
+  const handleExampleDone = useCallback(() => setPhase("countdown"), []);
 
   const handleGoDirectly = useCallback(async () => {
     try {
@@ -93,188 +79,167 @@ export default function Home() {
   }, [resetRecording]);
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-white">
-      <div className="relative w-full max-w-[430px] mx-auto video-container overflow-hidden bg-white" style={{ height: '100dvh' }}>
-        {/* Camera feed for countdown & recording */}
+    <main className="flex items-center justify-center min-h-screen bg-black">
+      <div className="relative w-full max-w-[430px] mx-auto video-container overflow-hidden bg-black" style={{ height: '100dvh' }}>
         {(phase === "countdown" || phase === "recording") && (
           <video
             ref={videoRef}
-            autoPlay
-            playsInline
-            muted
+            autoPlay playsInline muted
             className="absolute inset-0 w-full h-full object-cover"
             style={{ transform: "scaleX(-1)" }}
           />
         )}
 
         <AnimatePresence mode="wait">
-          {/* ═══════════════ LANDING ═══════════════ */}
+          {/* ═══ LANDING ═══ */}
           {phase === "landing" && (
             <motion.div
               key="landing"
-              className="absolute inset-0 flex flex-col bg-white"
+              className="absolute inset-0 flex flex-col gradient-mesh"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.5 }}
             >
-              {/* Hero illustration — top ~32% */}
+              {/* Floating orbs — background decoration */}
+              <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-accent-purple/20 blur-3xl orb-float" />
+                <div className="absolute top-1/3 -left-16 w-48 h-48 rounded-full bg-accent-pink/15 blur-3xl orb-float-slow" />
+                <div className="absolute bottom-20 right-10 w-32 h-32 rounded-full bg-accent-blue/20 blur-2xl orb-float" />
+              </div>
+
+              {/* Hero image area */}
               <motion.div
-                className="relative w-full"
-                style={{ height: '32%' }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.1 }}
+                className="relative w-full flex-shrink-0"
+                style={{ height: '35%' }}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.6 }}
               >
                 <img
                   src="/hero-illustration.png"
-                  alt="Video interview illustration"
+                  alt="Video interview"
                   className="w-full h-full object-cover"
-                  style={{ borderRadius: '0 0 24px 24px' }}
+                  style={{ borderRadius: '0 0 32px 32px' }}
                 />
-                {/* Decorative circles overlapping the image */}
-                <motion.div
-                  className="absolute -bottom-3 left-6 w-6 h-6 rounded-full bg-burgundy-500"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.3, type: "spring" }}
-                />
-                <motion.div
-                  className="absolute -bottom-1 left-14 w-3 h-3 rounded-full bg-navy-500"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.4, type: "spring" }}
-                />
-                <motion.div
-                  className="absolute top-4 -right-2 w-8 h-8 rounded-full border-2 border-burgundy-500/30"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.5 }}
+                {/* Glass overlay on image bottom */}
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-20"
+                  style={{
+                    background: 'linear-gradient(to top, rgba(15,12,41,1) 0%, transparent 100%)',
+                  }}
                 />
               </motion.div>
 
-              {/* Content below image */}
-              <div className="relative z-10 px-5 pt-20">
-                {/* Decorative background shapes */}
+              {/* Content */}
+              <div className="relative z-10 px-6 -mt-4 flex-1 flex flex-col">
+                {/* Pills */}
                 <motion.div
-                  className="absolute top-12 right-3 w-20 h-20 rounded-full border border-burgundy-500/10"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.6 }}
-                />
-                <motion.div
-                  className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-navy-500/5"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.7 }}
-                />
-
-                {/* Badges */}
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="brutal-tag brutal-tag-yellow">
-                      Video Interview
-                    </span>
-                    <motion.div
-                      className="w-2 h-2 rounded-full bg-burgundy-500"
-                      animate={{ scale: [1, 1.3, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
-                  </div>
-                  <span className="border-2 border-navy-500 text-navy-500 text-[0.6rem] font-bold tracking-[0.1em] uppercase px-2.5 py-1 bg-white">
-                    Wesser
-                  </span>
-                </div>
-
-                <motion.div
-                  className="text-left w-full"
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
+                  className="flex items-center gap-2 mb-5"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2 }}
                 >
-                  {/* Main title */}
-                  <h1 className="text-[32px] leading-[0.95] font-black text-black mb-1 tracking-tight">
-                    ENTRE TOI
-                    <br />
-                    <span className="flex items-center gap-2">
-                      &amp;{" "}
-                      <span className="bg-burgundy-500 text-white px-2 inline-block">
-                        NOUS
-                      </span>
-                      <motion.span
-                        className="inline-block w-3 h-3 rounded-full bg-navy-500"
-                        animate={{ y: [0, -4, 0] }}
-                        transition={{ duration: 1.5, repeat: Infinity }}
-                      />
-                    </span>
-                  </h1>
-
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="h-px w-4 bg-burgundy-500/40" />
-                    <div className="text-[0.5rem] font-semibold tracking-[0.2em] text-black/40 uppercase">
-                      Between You &amp; Us
-                    </div>
-                  </div>
-
-                  <p className="text-black/70 text-[13px] leading-snug mb-3 max-w-[260px]">
-                    10 questions flash face caméra.
-                    Réponds à voix haute, montre ta personnalité !
-                  </p>
-
-                  <div className="flex gap-3">
-                    <motion.button
-                      onClick={handleStartExample}
-                      className="brutal-btn brutal-btn-primary py-2.5 px-5 text-xs flex items-center gap-2"
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      <span className="w-2 h-2 rounded-full bg-white/40" />
-                      C&apos;est parti !&ensp;→
-                    </motion.button>
-
-                    <motion.button
-                      onClick={handleGoDirectly}
-                      className="brutal-btn brutal-btn-secondary py-2.5 px-4 text-xs"
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      Go direct
-                    </motion.button>
-                  </div>
+                  <span className="pill pill-accent">Video Interview</span>
+                  <span className="pill">Wesser</span>
                 </motion.div>
 
-                {/* Steps preview */}
+                {/* Title — LIQUID GLASS */}
                 <motion.div
-                  className="mt-5"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3, duration: 0.6 }}
+                >
+                  <h1 className="text-[38px] leading-[0.92] font-extrabold tracking-tight mb-1">
+                    <span className="text-white">ENTRE TOI</span>
+                    <br />
+                    <span className="flex items-center gap-3 mt-1">
+                      <span className="text-white/60">&amp;</span>
+                      <span className="liquid-glass-text">NOUS</span>
+                    </span>
+                  </h1>
+                </motion.div>
+
+                <motion.p
+                  className="text-[11px] font-medium tracking-[0.15em] text-white/30 uppercase mb-2"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
+                  transition={{ delay: 0.4 }}
                 >
-                  <div className="flex justify-between text-center text-[9px] font-bold uppercase text-black/40 tracking-wider">
-                    <div>
-                      <div className="w-7 h-7 rounded-full border-2 border-black bg-navy-500 flex items-center justify-center mx-auto mb-1 text-white text-[10px] font-black">
-                        1
-                      </div>
-                      Exemple
-                    </div>
-                    <div className="flex-1 flex items-center px-2">
-                      <div className="h-[1.5px] bg-black/15 w-full relative">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-burgundy-500/30" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="w-7 h-7 rounded-full border-2 border-black bg-white flex items-center justify-center mx-auto mb-1 text-black text-[10px] font-black">
-                        2
-                      </div>
-                      Caméra
-                    </div>
-                    <div className="flex-1 flex items-center px-2">
-                      <div className="h-[1.5px] bg-black/15 w-full relative">
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-burgundy-500/30" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="w-7 h-7 rounded-full border-2 border-black bg-burgundy-500 flex items-center justify-center mx-auto mb-1 text-white text-[10px] font-black">
-                        3
-                      </div>
-                      Action
+                  Between You &amp; Us
+                </motion.p>
+
+                <motion.p
+                  className="text-white/50 text-[14px] leading-relaxed mb-5 max-w-[280px]"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.45 }}
+                >
+                  10 questions flash face caméra.
+                  <br />
+                  Réponds à voix haute, montre ta personnalité !
+                </motion.p>
+
+                {/* CTA Buttons */}
+                <motion.div
+                  className="flex gap-3"
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.55 }}
+                >
+                  <motion.button
+                    onClick={handleStartExample}
+                    className="btn-primary flex items-center gap-2"
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    <span>C&apos;est parti !</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </motion.button>
+                  <motion.button
+                    onClick={handleGoDirectly}
+                    className="btn-glass"
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    Go direct
+                  </motion.button>
+                </motion.div>
+
+                {/* Steps — glass style */}
+                <motion.div
+                  className="mt-auto mb-8"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.7 }}
+                >
+                  <div className="glass-card px-5 py-4">
+                    <div className="flex items-center justify-between">
+                      {[
+                        { n: "1", label: "Exemple", active: true },
+                        { n: "2", label: "Caméra", active: false },
+                        { n: "3", label: "Action", active: false },
+                      ].map((step, i) => (
+                        <div key={i} className="flex items-center">
+                          {i > 0 && (
+                            <div className="w-8 h-px bg-white/10 mx-2" />
+                          )}
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold ${
+                                step.active
+                                  ? "bg-accent-purple text-white"
+                                  : "bg-white/8 text-white/40 border border-white/10"
+                              }`}
+                            >
+                              {step.n}
+                            </div>
+                            <span className="text-[11px] font-medium text-white/40">
+                              {step.label}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </motion.div>
@@ -282,7 +247,7 @@ export default function Home() {
             </motion.div>
           )}
 
-          {/* EXAMPLE VIDEO */}
+          {/* EXAMPLE */}
           {phase === "example" && (
             <motion.div
               key="example"
@@ -292,9 +257,8 @@ export default function Home() {
               exit={{ opacity: 0 }}
             >
               <ExampleVideo onFinished={handleExampleDone} videoRef={videoRef} />
-
               <motion.button
-                className="absolute top-5 right-4 z-30 brutal-btn brutal-btn-dark py-2 px-4 text-[10px]"
+                className="absolute top-5 right-4 z-30 btn-glass py-2 px-4 text-[11px]"
                 onClick={handleExampleDone}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

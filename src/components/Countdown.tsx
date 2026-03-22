@@ -1,15 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface CountdownProps {
   onDone: () => void;
 }
 
-/**
- * Brutalist countdown.
- * Phases: intro (3s) → 3 (1s) → 2 (1s) → 1 (1s) → GO (0.5s) → done
- */
 export default function Countdown({ onDone }: CountdownProps) {
   const [step, setStep] = useState<"intro" | "3" | "2" | "1" | "go" | "done">("intro");
   const onDoneRef = useRef(onDone);
@@ -23,75 +20,102 @@ export default function Countdown({ onDone }: CountdownProps) {
       "1": { next: "go", ms: 1000 },
       go: { next: "done", ms: 500 },
     };
-
     const config = delays[step];
     if (!config) return;
-
     const t = setTimeout(() => {
-      if (config.next === "done") {
-        onDoneRef.current();
-      } else {
-        setStep(config.next);
-      }
+      if (config.next === "done") onDoneRef.current();
+      else setStep(config.next);
     }, config.ms);
-
     return () => clearTimeout(t);
   }, [step]);
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/80">
-      {step === "intro" && (
-        <div className="text-center px-8 animate-fade-in">
-          <p className="text-5xl font-black text-white leading-none uppercase">
-            10 Questions
-          </p>
-          <div className="mt-3 inline-block">
-            <span className="brutal-tag brutal-tag-red text-sm px-4 py-2">
-              12s par question
+    <div className="absolute inset-0 z-50 flex items-center justify-center">
+      {/* Gradient mesh background */}
+      <div className="absolute inset-0 gradient-mesh" />
+      <div className="absolute inset-0 bg-black/40" />
+
+      {/* Floating orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-10 w-40 h-40 rounded-full bg-accent-purple/20 blur-3xl orb-float" />
+        <div className="absolute bottom-1/4 -right-10 w-40 h-40 rounded-full bg-accent-pink/15 blur-3xl orb-float-slow" />
+      </div>
+
+      <AnimatePresence mode="wait">
+        {step === "intro" && (
+          <motion.div
+            key="intro"
+            className="text-center px-8 relative z-10"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.4 }}
+          >
+            <motion.p
+              className="text-5xl font-extrabold text-white leading-none tracking-tight"
+              initial={{ y: 20 }}
+              animate={{ y: 0 }}
+            >
+              10 Questions
+            </motion.p>
+            <motion.div
+              className="mt-4 inline-block"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <span className="pill pill-accent text-sm px-5 py-2">
+                12s par question
+              </span>
+            </motion.div>
+            <motion.p
+              className="text-[13px] text-white/40 mt-4 font-medium"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              La dernière est libre, prends ton temps
+            </motion.p>
+            <motion.p
+              className="text-2xl font-bold mt-6 liquid-glass-text"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              À toi de jouer !
+            </motion.p>
+          </motion.div>
+        )}
+
+        {(step === "3" || step === "2" || step === "1") && (
+          <motion.div
+            key={step}
+            className="relative z-10"
+            initial={{ scale: 0.5, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 1.5, opacity: 0 }}
+            transition={{ type: "spring", damping: 15, stiffness: 200 }}
+          >
+            <span className="text-[140px] font-extrabold liquid-glass-text leading-none">
+              {step}
             </span>
-          </div>
-          <p className="text-xs font-bold text-white/40 mt-3 uppercase tracking-wider">
-            La dernière est libre, prends ton temps
-          </p>
-          <p className="text-2xl font-black text-burgundy-200 mt-5 uppercase">
-            À toi de jouer !
-          </p>
-        </div>
-      )}
+          </motion.div>
+        )}
 
-      {(step === "3" || step === "2" || step === "1") && (
-        <div key={step} className="countdown-number">
-          <span className="text-[120px] font-black text-white leading-none" style={{ WebkitTextStroke: '3px white' }}>
-            {step}
-          </span>
-        </div>
-      )}
-
-      {step === "go" && (
-        <div className="countdown-number">
-          <span className="text-6xl font-black bg-burgundy-500 text-white px-6 py-2 uppercase">
-            GO !
-          </span>
-        </div>
-      )}
-
-      <style jsx>{`
-        .countdown-number {
-          animation: countPop 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        @keyframes countPop {
-          0% { transform: scale(0); opacity: 0; }
-          70% { transform: scale(1.05); opacity: 1; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.4s ease-out forwards;
-        }
-        @keyframes fadeIn {
-          0% { opacity: 0; transform: scale(0.95); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-      `}</style>
+        {step === "go" && (
+          <motion.div
+            key="go"
+            className="relative z-10"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", damping: 12 }}
+          >
+            <div className="glass-heavy px-10 py-5">
+              <span className="text-5xl font-extrabold liquid-glass-text">GO !</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
