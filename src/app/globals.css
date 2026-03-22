@@ -6,7 +6,7 @@
 
 :root {
   --brutal-red: #8B1A2B;
-  --brutal-yellow: #1a2744;
+  --brutal-yellow: #1a2744; /* navy — used as brand accent, not actual yellow */
   --brutal-black: #000000;
   --brutal-white: #FFFFFF;
   --navy: #1a2744;

@@ -202,10 +202,10 @@ export default function QuestionOverlay({
       {/* Camera frame corners — thick, sharp */}
       {isCountdown && (
         <div className="absolute inset-6 pointer-events-none">
-          <div className="absolute top-0 left-0 w-8 h-8 border-t-3 border-l-3 border-white" style={{ borderTopWidth: '3px', borderLeftWidth: '3px' }} />
-          <div className="absolute top-0 right-0 w-8 h-8 border-t-3 border-r-3 border-white" style={{ borderTopWidth: '3px', borderRightWidth: '3px' }} />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-3 border-l-3 border-white" style={{ borderBottomWidth: '3px', borderLeftWidth: '3px' }} />
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-3 border-r-3 border-white" style={{ borderBottomWidth: '3px', borderRightWidth: '3px' }} />
+          <div className="absolute top-0 left-0 w-8 h-8 border-white" style={{ borderTopWidth: '3px', borderLeftWidth: '3px' }} />
+          <div className="absolute top-0 right-0 w-8 h-8 border-white" style={{ borderTopWidth: '3px', borderRightWidth: '3px' }} />
+          <div className="absolute bottom-0 left-0 w-8 h-8 border-white" style={{ borderBottomWidth: '3px', borderLeftWidth: '3px' }} />
+          <div className="absolute bottom-0 right-0 w-8 h-8 border-white" style={{ borderBottomWidth: '3px', borderRightWidth: '3px' }} />
         </div>
       )}
 
@@ -316,7 +316,7 @@ export default function QuestionOverlay({
                   transition={{ delay: 0.3 }}
                 >
                   <span className="text-[10px] font-bold tracking-[0.2em] text-white/40 uppercase">
-                    Question {questionIndex + 2}/{questions.length}
+                    Question {questionIndex + 1}/{questions.length}
                   </span>
                 </motion.div>
               </motion.div>
@@ -403,6 +403,7 @@ export default function QuestionOverlay({
                 }`}
                 whileTap={{ scale: 0.97 }}
                 onClick={advanceToNext}
+                disabled={isTransition}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}

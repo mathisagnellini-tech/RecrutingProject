@@ -26,17 +26,22 @@ export function useVoiceActivity(
   const spokenRef = useRef(false);
   const silenceStartRef = useRef(Date.now());
 
-  // Reset when question changes
+  // Persistent audio context refs — kept alive across questions
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+
+  // Reset state when question changes (without recreating AudioContext)
   useEffect(() => {
     spokenRef.current = false;
     silenceStartRef.current = Date.now();
     setState({ isSpeaking: false, hasSpoken: false, silenceDurationMs: 0 });
   }, [resetKey]);
 
+  // Set up AudioContext once per stream, tear down on stream change or unmount
   useEffect(() => {
     if (!stream) return;
 
-    let active = true;
     const audioContext = new AudioContext();
     const analyser = audioContext.createAnalyser();
     const source = audioContext.createMediaStreamSource(stream);
@@ -45,7 +50,12 @@ export function useVoiceActivity(
     analyser.smoothingTimeConstant = 0.85;
     source.connect(analyser);
 
+    audioCtxRef.current = audioContext;
+    analyserRef.current = analyser;
+    sourceRef.current = source;
+
     const dataArray = new Uint8Array(analyser.frequencyBinCount);
+    let active = true;
 
     const check = () => {
       if (!active) return;
@@ -75,7 +85,14 @@ export function useVoiceActivity(
       active = false;
       clearInterval(interval);
       source.disconnect();
-      audioContext.close();
+      audioCtxRef.current = null;
+      analyserRef.current = null;
+      sourceRef.current = null;
+      try {
+        audioContext.close();
+      } catch {
+        // AudioContext may already be closed
+      }
     };
   }, [stream]);
 

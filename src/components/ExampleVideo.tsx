@@ -243,10 +243,10 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
             key={i}
             className={`h-1 transition-all duration-500 ${
               i === currentQ
-                ? "w-10 bg-burgundy-500"
+                ? "flex-[2] bg-burgundy-500"
                 : i < currentQ
-                ? "w-6 bg-white"
-                : "w-6 bg-white/20"
+                ? "flex-1 bg-white"
+                : "flex-1 bg-white/20"
             }`}
             layout
           />
