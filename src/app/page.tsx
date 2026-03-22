@@ -31,7 +31,7 @@ export default function Home() {
     stopCamera,
     resetRecording,
   } = useCamera();
-  // Attach the camera stream to the video element whenever it mounts
+
   useEffect(() => {
     if (
       (phase === "example" || phase === "countdown" || phase === "recording") &&
@@ -67,7 +67,7 @@ export default function Home() {
   const handleCountdownDone = useCallback(() => {
     startRecording();
     recordingStartRef.current = Date.now();
-    setQuestionTimestamps([0]); // First question starts at t=0
+    setQuestionTimestamps([0]);
     setPhase("recording");
   }, [startRecording]);
 
@@ -108,7 +108,7 @@ export default function Home() {
         )}
 
         <AnimatePresence mode="wait">
-          {/* LANDING */}
+          {/* ═══════════════ LANDING ═══════════════ */}
           {phase === "landing" && (
             <motion.div
               key="landing"
@@ -131,19 +131,60 @@ export default function Home() {
                   className="w-full h-full object-cover"
                   style={{ borderRadius: '0 0 24px 24px' }}
                 />
+                {/* Decorative circles overlapping the image */}
+                <motion.div
+                  className="absolute -bottom-3 left-6 w-6 h-6 rounded-full bg-burgundy-500"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                />
+                <motion.div
+                  className="absolute -bottom-1 left-14 w-3 h-3 rounded-full bg-navy-500"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.4, type: "spring" }}
+                />
+                <motion.div
+                  className="absolute top-4 -right-2 w-8 h-8 rounded-full border-2 border-burgundy-500/30"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.5 }}
+                />
               </motion.div>
 
               {/* Content below image */}
               <div className="relative z-10 px-5 pt-20">
+                {/* Decorative background shapes */}
+                <motion.div
+                  className="absolute top-12 right-3 w-20 h-20 rounded-full border border-burgundy-500/10"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.6 }}
+                />
+                <motion.div
+                  className="absolute -bottom-4 -left-4 w-16 h-16 rounded-full bg-navy-500/5"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.7 }}
+                />
+
                 {/* Badges */}
                 <div className="flex items-center justify-between mb-4">
-                  <span className="brutal-tag brutal-tag-yellow">
-                    Video Interview
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="brutal-tag brutal-tag-yellow">
+                      Video Interview
+                    </span>
+                    <motion.div
+                      className="w-2 h-2 rounded-full bg-burgundy-500"
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                  </div>
                   <span className="border-2 border-navy-500 text-navy-500 text-[0.6rem] font-bold tracking-[0.1em] uppercase px-2.5 py-1 bg-white">
                     Wesser
                   </span>
                 </div>
+
                 <motion.div
                   className="text-left w-full"
                   initial={{ y: 20, opacity: 0 }}
@@ -154,17 +195,27 @@ export default function Home() {
                   <h1 className="text-[32px] leading-[0.95] font-black text-black mb-1 tracking-tight">
                     ENTRE TOI
                     <br />
-                    &amp;{" "}
-                    <span className="bg-burgundy-500 text-white px-2 inline-block">
-                      NOUS
+                    <span className="flex items-center gap-2">
+                      &amp;{" "}
+                      <span className="bg-burgundy-500 text-white px-2 inline-block">
+                        NOUS
+                      </span>
+                      <motion.span
+                        className="inline-block w-3 h-3 rounded-full bg-navy-500"
+                        animate={{ y: [0, -4, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity }}
+                      />
                     </span>
                   </h1>
 
-                  <div className="text-[0.5rem] font-semibold tracking-[0.2em] text-black/40 uppercase mb-1">
-                    Between You &amp; Us
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="h-px w-4 bg-burgundy-500/40" />
+                    <div className="text-[0.5rem] font-semibold tracking-[0.2em] text-black/40 uppercase">
+                      Between You &amp; Us
+                    </div>
                   </div>
 
-                  <p className="text-black/80 text-[13px] leading-snug mb-2 max-w-[260px]">
+                  <p className="text-black/70 text-[13px] leading-snug mb-3 max-w-[260px]">
                     10 questions flash face caméra.
                     Réponds à voix haute, montre ta personnalité !
                   </p>
@@ -172,15 +223,16 @@ export default function Home() {
                   <div className="flex gap-3">
                     <motion.button
                       onClick={handleStartExample}
-                      className="brutal-btn brutal-btn-primary py-2 px-5 text-xs"
+                      className="brutal-btn brutal-btn-primary py-2.5 px-5 text-xs flex items-center gap-2"
                       whileTap={{ scale: 0.97 }}
                     >
+                      <span className="w-2 h-2 rounded-full bg-white/40" />
                       C&apos;est parti !&ensp;→
                     </motion.button>
 
                     <motion.button
                       onClick={handleGoDirectly}
-                      className="brutal-btn brutal-btn-secondary py-2 px-4 text-xs"
+                      className="brutal-btn brutal-btn-secondary py-2.5 px-4 text-xs"
                       whileTap={{ scale: 0.97 }}
                     >
                       Go direct
@@ -188,7 +240,7 @@ export default function Home() {
                   </div>
                 </motion.div>
 
-                {/* Steps preview — bottom */}
+                {/* Steps preview */}
                 <motion.div
                   className="mt-5"
                   initial={{ opacity: 0 }}
@@ -197,25 +249,29 @@ export default function Home() {
                 >
                   <div className="flex justify-between text-center text-[9px] font-bold uppercase text-black/40 tracking-wider">
                     <div>
-                      <div className="w-6 h-6 border-2 border-black bg-navy-500 flex items-center justify-center mx-auto mb-1 text-white text-[10px] font-black">
+                      <div className="w-7 h-7 rounded-full border-2 border-black bg-navy-500 flex items-center justify-center mx-auto mb-1 text-white text-[10px] font-black">
                         1
                       </div>
                       Exemple
                     </div>
                     <div className="flex-1 flex items-center px-2">
-                      <div className="h-[1.5px] bg-black/20 w-full" />
+                      <div className="h-[1.5px] bg-black/15 w-full relative">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-burgundy-500/30" />
+                      </div>
                     </div>
                     <div>
-                      <div className="w-6 h-6 border-2 border-black bg-white flex items-center justify-center mx-auto mb-1 text-black text-[10px] font-black">
+                      <div className="w-7 h-7 rounded-full border-2 border-black bg-white flex items-center justify-center mx-auto mb-1 text-black text-[10px] font-black">
                         2
                       </div>
                       Caméra
                     </div>
                     <div className="flex-1 flex items-center px-2">
-                      <div className="h-[1.5px] bg-black/20 w-full" />
+                      <div className="h-[1.5px] bg-black/15 w-full relative">
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-burgundy-500/30" />
+                      </div>
                     </div>
                     <div>
-                      <div className="w-6 h-6 border-2 border-black bg-burgundy-500 flex items-center justify-center mx-auto mb-1 text-white text-[10px] font-black">
+                      <div className="w-7 h-7 rounded-full border-2 border-black bg-burgundy-500 flex items-center justify-center mx-auto mb-1 text-white text-[10px] font-black">
                         3
                       </div>
                       Action
