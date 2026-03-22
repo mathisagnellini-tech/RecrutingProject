@@ -34,10 +34,10 @@ const config: Config = {
           900: "#330a0f",
         },
         accent: {
-          purple: "#7C5CFC",
+          purple: "#2D5BFF",
           blue: "#5B8DEF",
-          pink: "#D946EF",
-          violet: "#8B5CF6",
+          pink: "#C93A5A",
+          violet: "#1A4FD6",
         },
       },
     },

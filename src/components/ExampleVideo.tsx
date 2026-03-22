@@ -207,7 +207,7 @@ export default function ExampleVideo({ onFinished, videoRef }: ExampleVideoProps
                 <div className="mt-3 h-1 bg-white/10 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full rounded-full"
-                    style={{ background: 'linear-gradient(90deg, #7C5CFC, #5B8DEF)' }}
+                    style={{ background: 'linear-gradient(90deg, #2D5BFF, #5B8DEF)' }}
                     initial={{ width: "100%" }}
                     animate={{ width: "0%" }}
                     transition={{ duration: 4, ease: "linear" }}

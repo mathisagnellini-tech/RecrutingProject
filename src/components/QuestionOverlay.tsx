@@ -22,9 +22,9 @@ const QUESTION_DISPLAY_DELAY = 3;
 
 function LiquidOrbs({ variant }: { variant: number }) {
   const colors = [
-    ['#7C5CFC', '#5B8DEF', '#D946EF'],
-    ['#D946EF', '#7C5CFC', '#5B8DEF'],
-    ['#5B8DEF', '#D946EF', '#7C5CFC'],
+    ['#2D5BFF', '#5B8DEF', '#C93A5A'],
+    ['#C93A5A', '#2D5BFF', '#5B8DEF'],
+    ['#5B8DEF', '#C93A5A', '#2D5BFF'],
   ][variant % 3];
 
   return (
@@ -277,7 +277,7 @@ export default function QuestionOverlay({
                     <motion.div
                       className="h-full rounded-full"
                       style={{
-                        background: 'linear-gradient(90deg, #7C5CFC, #5B8DEF)',
+                        background: 'linear-gradient(90deg, #2D5BFF, #5B8DEF)',
                         width: `${(displayTimer / QUESTION_DISPLAY_DELAY) * 100}%`,
                       }}
                     />
@@ -452,7 +452,7 @@ export default function QuestionOverlay({
                         width: `${100 - progress}%`,
                         background: remainingSeconds <= 3
                           ? 'linear-gradient(90deg, #ef4444, #f97316)'
-                          : 'linear-gradient(90deg, #7C5CFC, #5B8DEF)',
+                          : 'linear-gradient(90deg, #2D5BFF, #5B8DEF)',
                       }}
                     />
                   </div>
